@@ -1,847 +1,1527 @@
-:root {
-    --bg: #070707;
-    --bg-soft: #0d0d0d;
-    --panel: #111111;
-    --panel-2: #151515;
+const SPREADSHEET_ID =
+  "1WBApGw967uToPhYCcIxqgbxDOYffR8oq3U4mng4xHw4";
 
-    --gold: #c6a15b;
-    --gold-light: #e1c47f;
+const REQUESTS_SHEET = "Заявки";
+const SESSIONS_SHEET = "Сесії";
+const PHOTOS_SHEET = "Фото";
 
-    --text: #f1ede5;
-    --muted: #8f8a82;
 
-    --line: rgba(198, 161, 91, .2);
+// =========================================================
+// АДМІН-КЛЮЧ
+// =========================================================
 
-    --danger: #b56f6f;
+const ADMIN_TOKEN = "Admin Nelli";
 
-    --serif: "Cormorant Garamond", Georgia, serif;
-    --sans: "Montserrat", Arial, sans-serif;
-}
 
-* {
-    box-sizing: border-box;
-}
+// =========================================================
+// GET
+// =========================================================
 
-html {
-    background: var(--bg);
-}
+function doGet(e) {
 
-body {
-    margin: 0;
+  try {
 
-    min-height: 100vh;
+    const params =
+      e && e.parameter
+        ? e.parameter
+        : {};
 
-    background:
-        radial-gradient(
-            circle at 85% 5%,
-            rgba(198, 161, 91, .08),
-            transparent 28%
-        ),
-        linear-gradient(
-            135deg,
-            #050505,
-            #0b0b0b 55%,
-            #060606
+
+    // Публічний контент
+    if (params.action === "content") {
+
+      return jsonResponse(
+        getPublicContent()
+      );
+
+    }
+
+
+    // Дані для GitHub адмінки
+    if (params.action === "adminData") {
+
+      if (
+        params.token !== ADMIN_TOKEN
+      ) {
+
+        return adminError(
+          "Невірний ключ адміністратора",
+          params.callback
         );
 
-    color: var(--text);
+      }
 
-    font-family: var(--sans);
 
-    font-weight: 300;
+      const data =
+        getAdminData();
+
+
+      if (params.callback) {
+
+        return ContentService
+          .createTextOutput(
+            params.callback +
+            "(" +
+            JSON.stringify(data) +
+            ");"
+          )
+          .setMimeType(
+            ContentService.MimeType.JAVASCRIPT
+          );
+
+      }
+
+
+      return jsonResponse(data);
+
+    }
+
+
+    // Перевірка API
+    return jsonResponse({
+
+      success: true,
+
+      message: "NELLI API OK",
+
+      spreadsheet:
+        SpreadsheetApp
+          .openById(SPREADSHEET_ID)
+          .getName(),
+
+      time:
+        new Date().toISOString()
+
+    });
+
+
+  } catch (error) {
+
+    return jsonResponse({
+
+      success: false,
+
+      error:
+        error.message
+
+    });
+
+  }
+
 }
 
 
-/* =========================================================
-   COMMON
-========================================================= */
+// =========================================================
+// POST
+// =========================================================
 
-button,
-input,
-textarea,
-select {
-    font: inherit;
-}
+function doPost(e) {
 
-button {
-    cursor: pointer;
-}
+  try {
 
-.hidden {
-    display: none !important;
-}
+    let data = {};
 
 
-/* =========================================================
-   LOGIN
-========================================================= */
+    if (
+      e &&
+      e.postData &&
+      e.postData.contents
+    ) {
 
-.login-screen {
-    min-height: 100vh;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    padding: 25px;
-}
-
-.login-box {
-    width: min(430px, 100%);
-
-    padding: 55px 45px;
-
-    border: 1px solid var(--line);
-
-    background:
-        linear-gradient(
-            145deg,
-            rgba(255,255,255,.025),
-            rgba(255,255,255,.008)
+      data =
+        JSON.parse(
+          e.postData.contents
         );
 
-    box-shadow:
-        0 40px 120px rgba(0,0,0,.5);
-}
+    }
 
-.login-brand {
-    color: var(--gold);
 
-    font-family: var(--serif);
+    // Адмінські дії
+    if (
+      data.admin === true ||
+      data.type === "admin"
+    ) {
 
-    font-size: 42px;
+      if (
+        data.token !== ADMIN_TOKEN
+      ) {
 
-    letter-spacing: 10px;
+        return jsonResponse({
 
-    line-height: 1;
-}
+          success: false,
 
-.login-subtitle {
-    margin-top: 8px;
+          error:
+            "Невірний ключ адміністратора"
 
-    color: #666;
+        });
 
-    font-size: 8px;
+      }
 
-    letter-spacing: 4px;
-}
 
-.login-line {
-    width: 50px;
+      return handleAdminPost(data);
 
-    height: 1px;
+    }
 
-    margin: 38px 0;
 
-    background: var(--gold);
-}
+    // Звичайна заявка із сайту
+    return saveRequest(data);
 
-.login-box h1 {
-    margin: 0 0 12px;
 
-    font-family: var(--serif);
+  } catch (error) {
 
-    font-size: 60px;
+    return jsonResponse({
 
-    font-weight: 300;
+      success: false,
 
-    line-height: .9;
-}
+      error:
+        error.message
 
-.login-box p {
-    margin: 0 0 28px;
+    });
 
-    color: var(--muted);
+  }
 
-    font-size: 12px;
-
-    line-height: 1.8;
-}
-
-.login-box input {
-    margin-bottom: 14px;
 }
 
 
-/* =========================================================
-   HEADER
-========================================================= */
+// =========================================================
+// ЗАЯВКА
+// =========================================================
 
-.admin-header {
-    position: sticky;
+function saveRequest(data) {
 
-    top: 0;
-
-    z-index: 100;
-
-    min-height: 88px;
-
-    padding: 18px 5vw;
-
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 25px;
-
-    border-bottom: 1px solid var(--line);
-
-    background:
-        rgba(7,7,7,.84);
-
-    backdrop-filter: blur(16px);
-}
-
-.brand {
-    color: var(--gold);
-
-    font-family: var(--serif);
-
-    font-size: 20px;
-
-    letter-spacing: 4px;
-}
-
-.brand-sub {
-    margin-top: 3px;
-
-    color: #555;
-
-    font-size: 7px;
-
-    letter-spacing: 3px;
-}
-
-.header-actions {
-    display: flex;
-    align-items: center;
-
-    gap: 18px;
-}
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
 
 
-/* =========================================================
-   MAIN
-========================================================= */
+  let sheet =
+    ss.getSheetByName(
+      REQUESTS_SHEET
+    );
 
-.admin-main {
-    width: min(1450px, calc(100% - 70px));
 
-    margin: 0 auto;
+  if (!sheet) {
 
-    padding: 70px 0 100px;
-}
+    sheet =
+      ss.insertSheet(
+        REQUESTS_SHEET
+      );
 
-.page-top {
-    display: flex;
 
-    align-items: end;
+    sheet.appendRow([
 
-    justify-content: space-between;
+      "ID",
+      "Дата заявки",
+      "Ім'я",
+      "Телефон",
+      "Email",
+      "Повідомлення",
+      "Статус"
 
-    gap: 30px;
+    ]);
 
-    margin-bottom: 50px;
-}
 
-.eyebrow {
-    color: var(--gold);
+    sheet.setFrozenRows(1);
 
-    font-size: 9px;
+  }
 
-    font-weight: 500;
 
-    letter-spacing: 4px;
+  const id =
+    Utilities.getUuid();
 
-    text-transform: uppercase;
-}
 
-.page-top h1 {
-    margin: 14px 0 0;
+  sheet.appendRow([
 
-    font-family: var(--serif);
+    id,
 
-    font-size: clamp(65px, 8vw, 115px);
+    new Date(),
 
-    font-weight: 300;
+    data.full_name ||
+      data.name ||
+      "",
 
-    line-height: .78;
+    data.phone ||
+      "",
 
-    letter-spacing: -2px;
+    data.email ||
+      "",
+
+    data.message ||
+      "",
+
+    "Нова заявка"
+
+  ]);
+
+
+  const row =
+    sheet.getLastRow();
+
+
+  sheet
+    .getRange(row, 2)
+    .setNumberFormat(
+      "dd.MM.yyyy HH:mm:ss"
+    );
+
+
+  SpreadsheetApp.flush();
+
+
+  return jsonResponse({
+
+    success: true,
+
+    message:
+      "Заявку успішно записано",
+
+    id: id
+
+  });
+
 }
 
 
-/* =========================================================
-   LAYOUT
-========================================================= */
+// =========================================================
+// ADMIN POST
+// =========================================================
 
-.admin-layout {
-    display: grid;
+function handleAdminPost(data) {
 
-    grid-template-columns: 330px minmax(0, 1fr);
+  const action =
+    String(
+      data.action || ""
+    );
 
-    gap: 20px;
 
-    align-items: start;
+  if (
+    action === "saveSession"
+  ) {
+
+    return jsonResponse(
+      saveSession(data.session)
+    );
+
+  }
+
+
+  if (
+    action === "deleteSession"
+  ) {
+
+    return jsonResponse(
+      deleteSession(
+        data.sessionId
+      )
+    );
+
+  }
+
+
+  if (
+    action === "deletePhoto"
+  ) {
+
+    return jsonResponse(
+      deletePhoto(
+        data.photoId
+      )
+    );
+
+  }
+
+
+  if (
+    action === "setCover"
+  ) {
+
+    return jsonResponse(
+      setCover(
+        data.sessionId,
+        data.fileId
+      )
+    );
+
+  }
+
+
+  if (
+    action === "uploadPhoto"
+  ) {
+
+    return jsonResponse(
+      uploadPhoto(
+        data.sessionId,
+        data.fileName,
+        data.base64Data,
+        data.mimeType
+      )
+    );
+
+  }
+
+
+  return jsonResponse({
+
+    success: false,
+
+    error:
+      "Невідома адмін-операція"
+
+  });
+
 }
 
-.sessions-panel,
-.editor-panel {
-    border: 1px solid var(--line);
 
-    background:
-        rgba(255,255,255,.012);
-}
+// =========================================================
+// ОТРИМАТИ ДАНІ ДЛЯ АДМІНКИ
+// =========================================================
 
-.sessions-panel {
-    position: sticky;
+function getAdminData() {
 
-    top: 108px;
+  setupContentSheets();
 
-    padding: 24px;
-}
 
-.editor-panel {
-    padding: 38px;
-}
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
 
-.panel-title,
-.divider-title {
-    color: var(--gold);
 
-    font-size: 8px;
+  return {
 
-    font-weight: 500;
+    success: true,
 
-    letter-spacing: 3px;
+    sessions:
+      getRowsAsObjects(
+        ss.getSheetByName(
+          SESSIONS_SHEET
+        )
+      ),
 
-    text-transform: uppercase;
-}
+    photos:
+      getRowsAsObjects(
+        ss.getSheetByName(
+          PHOTOS_SHEET
+        )
+      )
 
-.panel-title {
-    margin-bottom: 20px;
-}
+  };
 
-.divider-title {
-    padding-top: 24px;
-
-    margin: 22px 0 25px;
-
-    border-top: 1px solid var(--line);
 }
 
 
-/* =========================================================
-   SESSION LIST
-========================================================= */
+// =========================================================
+// СТВОРЕННЯ АРКУШІВ
+// =========================================================
 
-.session-card {
-    padding: 17px;
+function setupContentSheets() {
 
-    margin-bottom: 10px;
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
 
-    border: 1px solid rgba(255,255,255,.07);
 
-    background: #0a0a0a;
+  let sessions =
+    ss.getSheetByName(
+      SESSIONS_SHEET
+    );
 
-    cursor: pointer;
 
-    transition:
-        transform .35s ease,
-        background .35s ease,
-        border-color .35s ease;
+  if (!sessions) {
+
+    sessions =
+      ss.insertSheet(
+        SESSIONS_SHEET
+      );
+
+
+    sessions.appendRow([
+
+      "ID",
+      "Категорія",
+      "Slug",
+
+      "Назва UA",
+      "Назва RU",
+      "Назва EN",
+      "Назва CZ",
+
+      "Опис UA",
+      "Опис RU",
+      "Опис EN",
+      "Опис CZ",
+
+      "Обкладинка",
+      "Порядок",
+      "Активна"
+
+    ]);
+
+  }
+
+
+  let photos =
+    ss.getSheetByName(
+      PHOTOS_SHEET
+    );
+
+
+  if (!photos) {
+
+    photos =
+      ss.insertSheet(
+        PHOTOS_SHEET
+      );
+
+
+    photos.appendRow([
+
+      "ID",
+      "Session ID",
+      "File ID",
+      "Назва",
+      "Порядок",
+      "Активна"
+
+    ]);
+
+  }
+
+
+  sessions.setFrozenRows(1);
+  photos.setFrozenRows(1);
+
 }
 
-.session-card:hover {
-    transform: translateX(4px);
 
-    border-color:
-        rgba(198,161,91,.4);
+// =========================================================
+// ЗБЕРЕГТИ ФОТОСЕСІЮ
+// =========================================================
+
+function saveSession(data) {
+
+  setupContentSheets();
+
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sheet =
+    ss.getSheetByName(
+      SESSIONS_SHEET
+    );
+
+
+  const rows =
+    sheet
+      .getDataRange()
+      .getValues();
+
+
+  let id =
+    String(
+      data.id || ""
+    ).trim();
+
+
+  if (!id) {
+
+    id =
+      Utilities.getUuid()
+        .split("-")[0];
+
+  }
+
+
+  let rowNumber =
+    -1;
+
+
+  for (
+    let i = 1;
+    i < rows.length;
+    i++
+  ) {
+
+    if (
+      String(rows[i][0]) === id
+    ) {
+
+      rowNumber =
+        i + 1;
+
+      break;
+
+    }
+
+  }
+
+
+  const values = [
+
+    id,
+
+    data.category ||
+      "other",
+
+    data.slug ||
+      id,
+
+    data.titleUk ||
+      "",
+
+    data.titleRu ||
+      "",
+
+    data.titleEn ||
+      "",
+
+    data.titleCz ||
+      "",
+
+    data.descriptionUk ||
+      "",
+
+    data.descriptionRu ||
+      "",
+
+    data.descriptionEn ||
+      "",
+
+    data.descriptionCz ||
+      "",
+
+    data.cover ||
+      "",
+
+    Number(
+      data.order || 0
+    ),
+
+    data.active !== false
+
+  ];
+
+
+  if (
+    rowNumber === -1
+  ) {
+
+    sheet.appendRow(values);
+
+  } else {
+
+    sheet
+      .getRange(
+        rowNumber,
+        1,
+        1,
+        values.length
+      )
+      .setValues([
+        values
+      ]);
+
+  }
+
+
+  SpreadsheetApp.flush();
+
+
+  return {
+
+    success: true,
+
+    id: id
+
+  };
+
 }
 
-.session-card.active {
-    border-color: var(--gold);
 
-    background:
-        linear-gradient(
-            90deg,
-            rgba(198,161,91,.08),
-            transparent
+// =========================================================
+// ВИДАЛИТИ ФОТОСЕСІЮ
+// =========================================================
+
+function deleteSession(sessionId) {
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sessionSheet =
+    ss.getSheetByName(
+      SESSIONS_SHEET
+    );
+
+
+  const photoSheet =
+    ss.getSheetByName(
+      PHOTOS_SHEET
+    );
+
+
+  if (photoSheet) {
+
+    const rows =
+      photoSheet
+        .getDataRange()
+        .getValues();
+
+
+    for (
+      let i = rows.length - 1;
+      i >= 1;
+      i--
+    ) {
+
+      if (
+        String(rows[i][1]) ===
+        String(sessionId)
+      ) {
+
+        const fileId =
+          String(
+            rows[i][2] || ""
+          );
+
+
+        if (fileId) {
+
+          try {
+
+            DriveApp
+              .getFileById(fileId)
+              .setTrashed(true);
+
+          } catch (error) {}
+
+        }
+
+
+        photoSheet.deleteRow(
+          i + 1
         );
-}
 
-.session-title {
-    font-family: var(--serif);
+      }
 
-    font-size: 24px;
-
-    line-height: 1.05;
-}
-
-.session-meta {
-    margin-top: 8px;
-
-    color: #69655f;
-
-    font-size: 8px;
-
-    letter-spacing: 1.5px;
-
-    text-transform: uppercase;
-}
-
-
-/* =========================================================
-   FORM
-========================================================= */
-
-.two-columns {
-    display: grid;
-
-    grid-template-columns: 1fr 1fr;
-
-    gap: 20px;
-}
-
-.field {
-    margin-bottom: 23px;
-}
-
-.field label {
-    display: block;
-
-    margin-bottom: 8px;
-
-    color: #88837b;
-
-    font-size: 8px;
-
-    letter-spacing: 2px;
-
-    text-transform: uppercase;
-}
-
-input,
-textarea,
-select {
-    width: 100%;
-
-    padding: 13px 14px;
-
-    border: 1px solid rgba(255,255,255,.09);
-
-    outline: none;
-
-    background: #090909;
-
-    color: var(--text);
-
-    transition:
-        border-color .3s ease,
-        box-shadow .3s ease;
-}
-
-input:focus,
-textarea:focus,
-select:focus {
-    border-color: var(--gold);
-
-    box-shadow:
-        0 0 0 3px rgba(198,161,91,.05);
-}
-
-textarea {
-    min-height: 100px;
-
-    resize: vertical;
-
-    line-height: 1.7;
-}
-
-
-/* =========================================================
-   BUTTONS
-========================================================= */
-
-.gold-button,
-.outline-button,
-.danger-button {
-    min-height: 46px;
-
-    padding: 0 22px;
-
-    border: 1px solid;
-
-    background: transparent;
-
-    font-size: 8px;
-
-    font-weight: 500;
-
-    letter-spacing: 2px;
-
-    text-transform: uppercase;
-
-    transition:
-        background .35s ease,
-        color .35s ease,
-        border-color .35s ease,
-        transform .35s ease;
-}
-
-.gold-button {
-    border-color: var(--gold);
-
-    color: var(--gold);
-}
-
-.gold-button:hover {
-    background: var(--gold);
-
-    color: #050505;
-
-    transform: translateY(-2px);
-}
-
-.outline-button {
-    border-color: #303030;
-
-    color: #999;
-}
-
-.outline-button:hover {
-    border-color: var(--gold);
-
-    color: var(--gold);
-}
-
-.danger-button {
-    border-color: rgba(181,111,111,.45);
-
-    color: var(--danger);
-}
-
-.danger-button:hover {
-    background: var(--danger);
-
-    color: #080808;
-}
-
-.editor-actions {
-    display: flex;
-
-    gap: 12px;
-
-    margin-top: 8px;
-}
-
-
-/* =========================================================
-   PHOTOS
-========================================================= */
-
-.photos-section {
-    margin-top: 55px;
-}
-
-.upload-box {
-    display: flex;
-
-    align-items: center;
-    justify-content: space-between;
-
-    gap: 25px;
-
-    padding: 25px;
-
-    border: 1px dashed
-        rgba(198,161,91,.3);
-
-    background:
-        rgba(198,161,91,.025);
-}
-
-.upload-copy {
-    display: flex;
-
-    flex-direction: column;
-
-    gap: 6px;
-}
-
-.upload-copy strong {
-    font-family: var(--serif);
-
-    font-size: 24px;
-
-    font-weight: 400;
-}
-
-.upload-copy span {
-    color: #666;
-
-    font-size: 8px;
-
-    letter-spacing: 1px;
-}
-
-#photoInput {
-    width: min(360px, 100%);
-
-    padding: 0;
-
-    border: 0;
-
-    background: transparent;
-}
-
-
-/* =========================================================
-   PHOTO GRID
-========================================================= */
-
-.photos-list {
-    display: grid;
-
-    grid-template-columns:
-        repeat(2, minmax(0, 1fr));
-
-    gap: 16px;
-
-    margin-top: 25px;
-}
-
-.photo-card {
-    overflow: hidden;
-
-    border: 1px solid
-        rgba(255,255,255,.08);
-
-    background: #090909;
-}
-
-.photo-preview {
-    position: relative;
-
-    aspect-ratio: 4 / 3;
-
-    overflow: hidden;
-
-    background: #151515;
-}
-
-.photo-preview img {
-    width: 100%;
-    height: 100%;
-
-    object-fit: cover;
-
-    transition:
-        transform .8s cubic-bezier(.16,1,.3,1);
-}
-
-.photo-card:hover
-.photo-preview img {
-    transform: scale(1.04);
-}
-
-.cover-badge {
-    position: absolute;
-
-    top: 12px;
-    left: 12px;
-
-    padding: 6px 9px;
-
-    background: var(--gold);
-
-    color: #090909;
-
-    font-size: 7px;
-
-    font-weight: 600;
-
-    letter-spacing: 1.5px;
-
-    text-transform: uppercase;
-}
-
-.photo-body {
-    padding: 15px;
-}
-
-.photo-name {
-    overflow: hidden;
-
-    color: #ddd;
-
-    font-size: 10px;
-
-    white-space: nowrap;
-
-    text-overflow: ellipsis;
-}
-
-.photo-actions {
-    display: flex;
-
-    gap: 8px;
-
-    margin-top: 12px;
-}
-
-.photo-actions button {
-    min-height: 34px;
-
-    padding: 0 11px;
-
-    border: 1px solid #292929;
-
-    background: transparent;
-
-    color: #888;
-
-    font-size: 7px;
-
-    letter-spacing: 1px;
-
-    text-transform: uppercase;
-
-    transition:
-        border-color .3s ease,
-        color .3s ease;
-}
-
-.photo-actions button:hover {
-    border-color: var(--gold);
-
-    color: var(--gold);
-}
-
-
-/* =========================================================
-   MESSAGE
-========================================================= */
-
-.message {
-    min-height: 18px;
-
-    color: var(--gold);
-
-    font-size: 9px;
-
-    letter-spacing: 1px;
-}
-
-
-/* =========================================================
-   SCROLLBAR
-========================================================= */
-
-::-webkit-scrollbar {
-    width: 6px;
-}
-
-::-webkit-scrollbar-track {
-    background: #060606;
-}
-
-::-webkit-scrollbar-thumb {
-    background: #2b2b2b;
-}
-
-::-webkit-scrollbar-thumb:hover {
-    background: var(--gold);
-}
-
-
-/* =========================================================
-   MOBILE
-========================================================= */
-
-@media (max-width: 900px) {
-
-    .admin-main {
-        width: calc(100% - 30px);
-
-        padding-top: 40px;
     }
 
-    .admin-layout {
-        grid-template-columns: 1fr;
+  }
+
+
+  if (sessionSheet) {
+
+    const rows =
+      sessionSheet
+        .getDataRange()
+        .getValues();
+
+
+    for (
+      let i = rows.length - 1;
+      i >= 1;
+      i--
+    ) {
+
+      if (
+        String(rows[i][0]) ===
+        String(sessionId)
+      ) {
+
+        sessionSheet.deleteRow(
+          i + 1
+        );
+
+        break;
+
+      }
+
     }
 
-    .sessions-panel {
-        position: static;
-    }
+  }
 
-    .two-columns {
-        grid-template-columns: 1fr;
-    }
 
-    .photos-list {
-        grid-template-columns: 1fr;
-    }
+  SpreadsheetApp.flush();
 
-    .upload-box {
-        align-items: stretch;
 
-        flex-direction: column;
-    }
-
-    #photoInput {
-        width: 100%;
-    }
+  return {
+    success: true
+  };
 
 }
 
 
-@media (max-width: 600px) {
+// =========================================================
+// ЗАВАНТАЖЕННЯ ФОТО
+// =========================================================
 
-    .admin-header {
-        padding: 16px 15px;
+function uploadPhoto(
+  sessionId,
+  fileName,
+  base64Data,
+  mimeType
+) {
+
+  if (!sessionId) {
+
+    throw new Error(
+      "Не вибрана фотосесія"
+    );
+
+  }
+
+
+  if (!base64Data) {
+
+    throw new Error(
+      "Файл порожній"
+    );
+
+  }
+
+
+  if (
+    base64Data.length >
+    11000000
+  ) {
+
+    throw new Error(
+      "Файл занадто великий. Максимум приблизно 8 MB."
+    );
+
+  }
+
+
+  const folder =
+    getPhotoFolder();
+
+
+  const bytes =
+    Utilities.base64Decode(
+      base64Data
+    );
+
+
+  const blob =
+    Utilities.newBlob(
+      bytes,
+      mimeType ||
+        "image/jpeg",
+      fileName ||
+        "photo.jpg"
+    );
+
+
+  const file =
+    folder.createFile(
+      blob
+    );
+
+
+  try {
+
+    file.setSharing(
+      DriveApp.Access.ANYONE_WITH_LINK,
+      DriveApp.Permission.VIEW
+    );
+
+  } catch (error) {}
+
+
+  const fileId =
+    file.getId();
+
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sheet =
+    ss.getSheetByName(
+      PHOTOS_SHEET
+    );
+
+
+  const rows =
+    sheet
+      .getDataRange()
+      .getValues();
+
+
+  let maxOrder = 0;
+
+
+  for (
+    let i = 1;
+    i < rows.length;
+    i++
+  ) {
+
+    if (
+      String(rows[i][1]) ===
+      String(sessionId)
+    ) {
+
+      maxOrder =
+        Math.max(
+          maxOrder,
+          Number(
+            rows[i][4] || 0
+          )
+        );
+
     }
 
-    .brand {
-        font-size: 14px;
+  }
+
+
+  const photoId =
+    Utilities.getUuid();
+
+
+  sheet.appendRow([
+
+    photoId,
+
+    sessionId,
+
+    fileId,
+
+    fileName,
+
+    maxOrder + 1,
+
+    true
+
+  ]);
+
+
+  const url =
+    "https://drive.google.com/uc?export=view&id=" +
+    fileId;
+
+
+  setCoverIfEmpty(
+    sessionId,
+    url
+  );
+
+
+  SpreadsheetApp.flush();
+
+
+  return {
+
+    success: true,
+
+    id: photoId,
+
+    fileId: fileId,
+
+    url: url
+
+  };
+
+}
+
+
+// =========================================================
+// ВИДАЛИТИ ФОТО
+// =========================================================
+
+function deletePhoto(photoId) {
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sheet =
+    ss.getSheetByName(
+      PHOTOS_SHEET
+    );
+
+
+  const rows =
+    sheet
+      .getDataRange()
+      .getValues();
+
+
+  for (
+    let i = rows.length - 1;
+    i >= 1;
+    i--
+  ) {
+
+    if (
+      String(rows[i][0]) ===
+      String(photoId)
+    ) {
+
+      const fileId =
+        String(
+          rows[i][2] || ""
+        );
+
+
+      if (fileId) {
+
+        try {
+
+          DriveApp
+            .getFileById(fileId)
+            .setTrashed(true);
+
+        } catch (error) {}
+
+      }
+
+
+      sheet.deleteRow(
+        i + 1
+      );
+
+
+      SpreadsheetApp.flush();
+
+
+      return {
+        success: true
+      };
+
     }
 
-    .brand-sub {
-        font-size: 6px;
+  }
+
+
+  throw new Error(
+    "Фото не знайдено"
+  );
+
+}
+
+
+// =========================================================
+// ОБКЛАДИНКА
+// =========================================================
+
+function setCover(
+  sessionId,
+  fileId
+) {
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sheet =
+    ss.getSheetByName(
+      SESSIONS_SHEET
+    );
+
+
+  const url =
+    "https://drive.google.com/uc?export=view&id=" +
+    fileId;
+
+
+  const rows =
+    sheet
+      .getDataRange()
+      .getValues();
+
+
+  for (
+    let i = 1;
+    i < rows.length;
+    i++
+  ) {
+
+    if (
+      String(rows[i][0]) ===
+      String(sessionId)
+    ) {
+
+      sheet
+        .getRange(
+          i + 1,
+          12
+        )
+        .setValue(url);
+
+
+      SpreadsheetApp.flush();
+
+
+      return {
+
+        success: true,
+
+        url: url
+
+      };
+
     }
 
-    .header-actions {
-        gap: 8px;
+  }
+
+
+  throw new Error(
+    "Фотосесію не знайдено"
+  );
+
+}
+
+
+// =========================================================
+// АВТОМАТИЧНА ОБКЛАДИНКА
+// =========================================================
+
+function setCoverIfEmpty(
+  sessionId,
+  url
+) {
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sheet =
+    ss.getSheetByName(
+      SESSIONS_SHEET
+    );
+
+
+  const rows =
+    sheet
+      .getDataRange()
+      .getValues();
+
+
+  for (
+    let i = 1;
+    i < rows.length;
+    i++
+  ) {
+
+    if (
+      String(rows[i][0]) ===
+      String(sessionId)
+    ) {
+
+      const current =
+        String(
+          rows[i][11] || ""
+        ).trim();
+
+
+      if (!current) {
+
+        sheet
+          .getRange(
+            i + 1,
+            12
+          )
+          .setValue(url);
+
+      }
+
+
+      return;
+
     }
 
-    .header-actions .message {
-        display: none;
-    }
+  }
 
-    .editor-panel {
-        padding: 24px 17px;
-    }
+}
 
-    .page-top {
-        align-items: stretch;
 
-        flex-direction: column;
-    }
+// =========================================================
+// GOOGLE DRIVE ПАПКА
+// =========================================================
 
-    .page-top .gold-button {
-        width: 100%;
-    }
+function getPhotoFolder() {
 
-    .login-box {
-        padding: 38px 25px;
-    }
+  const props =
+    PropertiesService
+      .getScriptProperties();
 
-    .login-box h1 {
-        font-size: 48px;
-    }
 
-    .session-title {
-        font-size: 21px;
-    }
+  const savedId =
+    props.getProperty(
+      "PHOTO_FOLDER_ID"
+    );
+
+
+  if (savedId) {
+
+    try {
+
+      return DriveApp
+        .getFolderById(
+          savedId
+        );
+
+    } catch (error) {}
+
+  }
+
+
+  const folder =
+    DriveApp.createFolder(
+      "Nelli Website Photos"
+    );
+
+
+  props.setProperty(
+    "PHOTO_FOLDER_ID",
+    folder.getId()
+  );
+
+
+  return folder;
+
+}
+
+
+// =========================================================
+// ПУБЛІЧНИЙ КОНТЕНТ
+// =========================================================
+
+function getPublicContent() {
+
+  setupContentSheets();
+
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sessionRows =
+    getRowsAsObjects(
+      ss.getSheetByName(
+        SESSIONS_SHEET
+      )
+    );
+
+
+  const photoRows =
+    getRowsAsObjects(
+      ss.getSheetByName(
+        PHOTOS_SHEET
+      )
+    );
+
+
+  const activeSessions =
+    sessionRows
+
+      .filter(function (session) {
+
+        return (
+          session["Активна"] === true ||
+          String(
+            session["Активна"]
+          ).toLowerCase() === "true"
+        );
+
+      })
+
+      .sort(function (a, b) {
+
+        return (
+          Number(
+            a["Порядок"] || 0
+          ) -
+          Number(
+            b["Порядок"] || 0
+          )
+        );
+
+      });
+
+
+  const result =
+    activeSessions.map(
+      function (session) {
+
+        const sessionId =
+          String(
+            session["ID"] || ""
+          );
+
+
+        const photos =
+          photoRows
+
+            .filter(function (photo) {
+
+              const active =
+                photo["Активна"] === true ||
+                String(
+                  photo["Активна"]
+                ).toLowerCase() === "true";
+
+
+              return (
+                String(
+                  photo["Session ID"] || ""
+                ) === sessionId &&
+                active
+              );
+
+            })
+
+            .sort(function (a, b) {
+
+              return (
+                Number(
+                  a["Порядок"] || 0
+                ) -
+                Number(
+                  b["Порядок"] || 0
+                )
+              );
+
+            });
+
+
+        return {
+
+          id:
+            sessionId,
+
+          category:
+            session["Категорія"] || "",
+
+          slug:
+            session["Slug"] || "",
+
+          title: {
+
+            uk:
+              session["Назва UA"] || "",
+
+            ru:
+              session["Назва RU"] || "",
+
+            en:
+              session["Назва EN"] || "",
+
+            cz:
+              session["Назва CZ"] || ""
+
+          },
+
+          description: {
+
+            uk:
+              session["Опис UA"] || "",
+
+            ru:
+              session["Опис RU"] || "",
+
+            en:
+              session["Опис EN"] || "",
+
+            cz:
+              session["Опис CZ"] || ""
+
+          },
+
+          cover:
+            session["Обкладинка"] || "",
+
+          order:
+            Number(
+              session["Порядок"] || 0
+            ),
+
+          photos:
+            photos.map(
+              function (photo) {
+
+                const fileId =
+                  String(
+                    photo["File ID"] || ""
+                  );
+
+
+                return {
+
+                  id:
+                    photo["ID"] || "",
+
+                  fileId:
+                    fileId,
+
+                  title:
+                    photo["Назва"] || "",
+
+                  order:
+                    Number(
+                      photo["Порядок"] || 0
+                    ),
+
+                  url:
+                    fileId
+                      ? "https://drive.google.com/uc?export=view&id=" +
+                        fileId
+                      : ""
+
+                };
+
+              }
+            )
+
+        };
+
+      }
+    );
+
+
+  return {
+
+    success: true,
+
+    sessions:
+      result
+
+  };
+
+}
+
+
+// =========================================================
+// РЯДКИ → ОБ'ЄКТИ
+// =========================================================
+
+function getRowsAsObjects(sheet) {
+
+  const values =
+    sheet
+      .getDataRange()
+      .getValues();
+
+
+  if (
+    values.length < 2
+  ) {
+
+    return [];
+
+  }
+
+
+  const headers =
+    values[0];
+
+
+  return values
+    .slice(1)
+    .map(function (row) {
+
+      const object = {};
+
+
+      headers.forEach(
+        function (
+          header,
+          index
+        ) {
+
+          object[header] =
+            row[index];
+
+        }
+      );
+
+
+      return object;
+
+    });
+
+}
+
+
+// =========================================================
+// ERROR
+// =========================================================
+
+function adminError(
+  message,
+  callback
+) {
+
+  const data = {
+
+    success: false,
+
+    error: message
+
+  };
+
+
+  if (callback) {
+
+    return ContentService
+
+      .createTextOutput(
+
+        callback +
+        "(" +
+        JSON.stringify(data) +
+        ");"
+
+      )
+
+      .setMimeType(
+        ContentService.MimeType.JAVASCRIPT
+      );
+
+  }
+
+
+  return jsonResponse(
+    data
+  );
+
+}
+
+
+// =========================================================
+// JSON
+// =========================================================
+
+function jsonResponse(data) {
+
+  return ContentService
+
+    .createTextOutput(
+      JSON.stringify(data)
+    )
+
+    .setMimeType(
+      ContentService.MimeType.JSON
+    );
 
 }
