@@ -3,61 +3,57 @@ const GOOGLE_SCRIPT_URL =
 
 document.addEventListener("DOMContentLoaded", function () {
 
-    console.log("=== NELLI SCRIPT START ===");
-
     const form = document.getElementById("bookingForm");
 
     if (!form) {
-        console.error("FORM bookingForm NOT FOUND");
+        console.error("Форму bookingForm не знайдено");
         return;
     }
 
-    console.log("FORM FOUND");
-
-    form.addEventListener("submit", async function (event) {
+    form.addEventListener("submit", function (event) {
 
         event.preventDefault();
 
-        console.log("=== SUBMIT CLICK ===");
-
         const data = {
-            full_name: document.getElementById("name")?.value || "ТЕСТ З GITHUB",
-            phone: document.getElementById("phone")?.value || "+420111111111",
-            email: document.getElementById("email")?.value || "github@test.cz",
-            message: document.getElementById("message")?.value || "Тест з GitHub"
+            full_name:
+                document.getElementById("name")?.value.trim() || "",
+
+            phone:
+                document.getElementById("phone")?.value.trim() || "",
+
+            email:
+                document.getElementById("email")?.value.trim() || "",
+
+            message:
+                document.getElementById("message")?.value.trim() || ""
         };
 
-        console.log("DATA:", data);
-        console.log("URL:", GOOGLE_SCRIPT_URL);
+        console.log("Відправляємо заявку:", data);
 
-        try {
+        fetch(GOOGLE_SCRIPT_URL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify(data)
+        })
+        .then(function () {
 
-            await fetch(GOOGLE_SCRIPT_URL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: {
-                    "Content-Type": "text/plain;charset=utf-8"
-                },
-                body: JSON.stringify(data)
-            });
+            console.log("Заявку відправлено");
 
-            console.log("=== FETCH COMPLETED ===");
+            alert("Дякуємо! Заявку отримано.");
 
-            alert(
-                "Запит відправлено.\n\n" +
-                "Перевір таблицю через 5–10 секунд."
-            );
+            form.reset();
 
-        } catch (error) {
+        })
+        .catch(function (error) {
 
-            console.error("FETCH ERROR:", error);
+            console.error("Помилка:", error);
 
-            alert(
-                "ПОМИЛКА ВІДПРАВКИ.\n\n" +
-                error.message
-            );
+            alert("Не вдалося відправити заявку.");
 
-        }
+        });
 
     });
 
