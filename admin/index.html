@@ -10,7 +10,7 @@
         content="width=device-width, initial-scale=1.0"
     >
 
-    <title>Nelli Photography — Admin</title>
+    <title>Nelli Photography — Адмінка</title>
 
     <link
         rel="stylesheet"
@@ -20,6 +20,11 @@
 </head>
 
 <body>
+
+
+<!-- ======================================================
+     LOGIN
+====================================================== -->
 
 <div
     id="loginScreen"
@@ -33,27 +38,33 @@
         </div>
 
         <div class="login-subtitle">
-            PHOTOGRAPHY · PRIVATE ADMIN
+            PHOTOGRAPHY · ADMIN
         </div>
 
         <div class="login-line"></div>
 
-        <h1>Вхід</h1>
+        <div class="login-label">
+            ПРИВАТНА ПАНЕЛЬ
+        </div>
+
+        <h1>
+            Вхід
+        </h1>
 
         <p>
-            Введіть ключ адміністратора.
+            Введіть пароль для керування сайтом.
         </p>
 
         <input
             id="adminToken"
             type="password"
-            placeholder="Ключ адміністратора"
+            placeholder="Пароль"
             autocomplete="off"
         >
 
         <button
             id="loginButton"
-            class="gold-button"
+            class="gold-button full-button"
             type="button"
         >
             Увійти
@@ -69,27 +80,34 @@
 </div>
 
 
+<!-- ======================================================
+     APP
+====================================================== -->
+
 <div
     id="app"
     class="app hidden"
 >
 
+
+    <!-- HEADER -->
+
     <header class="admin-header">
 
-        <div>
+        <div class="header-brand">
 
             <div class="brand">
-                NELLI PHOTOGRAPHY
+                NELLI
             </div>
 
             <div class="brand-sub">
-                CONTENT ADMINISTRATION
+                PHOTOGRAPHY · ADMIN
             </div>
 
         </div>
 
 
-        <div class="header-actions">
+        <div class="header-right">
 
             <span
                 id="globalMessage"
@@ -109,9 +127,14 @@
     </header>
 
 
+    <!-- MAIN -->
+
     <main class="admin-main">
 
-        <div class="page-top">
+
+        <!-- PAGE HEADER -->
+
+        <div class="page-heading">
 
             <div>
 
@@ -123,28 +146,69 @@
                     Фотосесії
                 </h1>
 
+                <p class="page-description">
+                    Тут можна керувати фотосесіями та фотографіями сайту.
+                </p>
+
             </div>
 
 
             <button
                 id="newSessionButton"
-                class="gold-button"
+                class="gold-button create-button"
                 type="button"
             >
-                + Нова фотосесія
+                + Додати фотосесію
             </button>
 
         </div>
 
 
+        <!-- SEARCH -->
+
+        <div class="toolbar">
+
+            <div class="search-box">
+
+                <span>
+                    ⌕
+                </span>
+
+                <input
+                    id="sessionSearch"
+                    type="text"
+                    placeholder="Пошук фотосесії..."
+                >
+
+            </div>
+
+            <div
+                id="sessionCount"
+                class="count-label"
+            >
+                0 фотосесій
+            </div>
+
+        </div>
+
+
+        <!-- CONTENT -->
+
         <div class="admin-layout">
 
 
+            <!-- SESSION LIST -->
+
             <aside class="sessions-panel">
 
-                <div class="panel-title">
-                    Фотосесії
+                <div class="panel-header">
+
+                    <div class="panel-title">
+                        Ваші фотосесії
+                    </div>
+
                 </div>
+
 
                 <div id="sessionsList">
                     Завантаження...
@@ -153,276 +217,458 @@
             </aside>
 
 
+            <!-- EDITOR -->
+
             <section class="editor-panel">
 
-                <div class="panel-title">
-                    Редактор
+
+                <div
+                    id="emptyState"
+                    class="empty-state"
+                >
+
+                    <div class="empty-icon">
+                        +
+                    </div>
+
+                    <h2>
+                        Виберіть фотосесію
+                    </h2>
+
+                    <p>
+                        Або створіть нову фотосесію,
+                        щоб додати фотографії.
+                    </p>
+
+                    <button
+                        id="emptyCreateButton"
+                        class="gold-button"
+                        type="button"
+                    >
+                        Створити фотосесію
+                    </button>
+
                 </div>
 
 
-                <form id="sessionForm">
-
-                    <input
-                        id="sessionId"
-                        type="hidden"
-                    >
+                <div
+                    id="editor"
+                    class="hidden"
+                >
 
 
-                    <div class="two-columns">
+                    <!-- EDITOR HEADER -->
 
-                        <div class="field">
+                    <div class="editor-header">
 
-                            <label for="category">
-                                Категорія
-                            </label>
+                        <div>
 
-                            <input
-                                id="category"
-                                type="text"
+                            <div class="eyebrow">
+                                РЕДАГУВАННЯ
+                            </div>
+
+                            <h2 id="editorTitle">
+                                Фотосесія
+                            </h2>
+
+                        </div>
+
+
+                        <div
+                            id="editorStatus"
+                            class="editor-status"
+                        ></div>
+
+                    </div>
+
+
+                    <!-- BASIC INFO -->
+
+                    <div class="form-section">
+
+                        <div class="section-heading">
+                            Основна інформація
+                        </div>
+
+
+                        <div class="two-columns">
+
+
+                            <div class="field">
+
+                                <label for="titleUk">
+                                    Назва
+                                </label>
+
+                                <input
+                                    id="titleUk"
+                                    type="text"
+                                    placeholder="Наприклад: Весілля Олени та Максима"
+                                >
+
+                                <div class="field-help">
+                                    Основна назва фотосесії.
+                                </div>
+
+                            </div>
+
+
+                            <div class="field">
+
+                                <label for="category">
+                                    Тип зйомки
+                                </label>
+
+                                <select id="category">
+
+                                    <option value="wedding">
+                                        Весілля
+                                    </option>
+
+                                    <option value="love">
+                                        Історія кохання
+                                    </option>
+
+                                    <option value="portrait">
+                                        Портрет
+                                    </option>
+
+                                    <option value="couple">
+                                        Пара
+                                    </option>
+
+                                    <option value="other">
+                                        Інше
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+
+                            <div class="field">
+
+                                <label for="order">
+                                    Позиція на сайті
+                                </label>
+
+                                <input
+                                    id="order"
+                                    type="number"
+                                    min="1"
+                                    value="1"
+                                >
+
+                                <div class="field-help">
+                                    Менше число = вище на сайті.
+                                </div>
+
+                            </div>
+
+
+                            <div class="field">
+
+                                <label for="active">
+                                    Статус
+                                </label>
+
+                                <select id="active">
+
+                                    <option value="true">
+                                        Показувати на сайті
+                                    </option>
+
+                                    <option value="false">
+                                        Приховати з сайту
+                                    </option>
+
+                                </select>
+
+                            </div>
+
+                        </div>
+
+
+                        <details class="advanced-section">
+
+                            <summary>
+                                Додаткові налаштування
+                            </summary>
+
+
+                            <div class="two-columns advanced-fields">
+
+
+                                <div class="field">
+
+                                    <label for="slug">
+                                        Slug
+                                    </label>
+
+                                    <input
+                                        id="slug"
+                                        type="text"
+                                        placeholder="wedding-olena-max"
+                                    >
+
+                                    <div class="field-help">
+                                        Можна залишити порожнім — створиться автоматично.
+                                    </div>
+
+                                </div>
+
+
+                                <div class="field">
+
+                                    <label>
+                                        ID
+                                    </label>
+
+                                    <input
+                                        id="sessionIdDisplay"
+                                        type="text"
+                                        readonly
+                                    >
+
+                                </div>
+
+                            </div>
+
+                        </details>
+
+                    </div>
+
+
+                    <!-- LANGUAGES -->
+
+                    <div class="form-section">
+
+                        <div class="section-heading">
+                            Тексти різними мовами
+                        </div>
+
+
+                        <div class="language-grid">
+
+
+                            <div class="language-card">
+
+                                <div class="language-name">
+                                    UA
+                                </div>
+
+                                <div class="field">
+
+                                    <label for="descriptionUk">
+                                        Опис
+                                    </label>
+
+                                    <textarea
+                                        id="descriptionUk"
+                                        placeholder="Короткий опис фотосесії..."
+                                    ></textarea>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="language-card">
+
+                                <div class="language-name">
+                                    RU
+                                </div>
+
+                                <div class="field">
+
+                                    <label for="titleRu">
+                                        Назва
+                                    </label>
+
+                                    <input
+                                        id="titleRu"
+                                        type="text"
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label for="descriptionRu">
+                                        Опис
+                                    </label>
+
+                                    <textarea
+                                        id="descriptionRu"
+                                    ></textarea>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="language-card">
+
+                                <div class="language-name">
+                                    EN
+                                </div>
+
+                                <div class="field">
+
+                                    <label for="titleEn">
+                                        Назва
+                                    </label>
+
+                                    <input
+                                        id="titleEn"
+                                        type="text"
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label for="descriptionEn">
+                                        Опис
+                                    </label>
+
+                                    <textarea
+                                        id="descriptionEn"
+                                    ></textarea>
+
+                                </div>
+
+                            </div>
+
+
+                            <div class="language-card">
+
+                                <div class="language-name">
+                                    CZ
+                                </div>
+
+                                <div class="field">
+
+                                    <label for="titleCz">
+                                        Назва
+                                    </label>
+
+                                    <input
+                                        id="titleCz"
+                                        type="text"
+                                    >
+
+                                </div>
+
+                                <div class="field">
+
+                                    <label for="descriptionCz">
+                                        Опис
+                                    </label>
+
+                                    <textarea
+                                        id="descriptionCz"
+                                    ></textarea>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- ACTIONS -->
+
+                    <div class="save-bar">
+
+                        <div>
+
+                            <div class="save-hint">
+                                Не забудьте зберегти зміни.
+                            </div>
+
+                        </div>
+
+
+                        <div class="save-actions">
+
+                            <button
+                                id="deleteSessionButton"
+                                class="danger-button"
+                                type="button"
                             >
+                                Видалити
+                            </button>
 
-                        </div>
-
-
-                        <div class="field">
-
-                            <label for="slug">
-                                Slug
-                            </label>
-
-                            <input
-                                id="slug"
-                                type="text"
+                            <button
+                                id="saveSessionButton"
+                                class="gold-button"
+                                type="button"
                             >
+                                Зберегти зміни
+                            </button>
 
                         </div>
 
                     </div>
 
 
-                    <div class="divider-title">
-                        Назви
-                    </div>
+                    <!-- PHOTOS -->
+
+                    <div class="photos-section">
+
+                        <div class="section-heading">
+                            Фотографії
+                        </div>
 
 
-                    <div class="two-columns">
+                        <div class="photos-toolbar">
 
-                        <div class="field">
+                            <div>
 
-                            <label for="titleUk">
-                                Українська
+                                <strong>
+                                    Галерея фотосесії
+                                </strong>
+
+                                <span>
+                                    Завантажуйте фото прямо сюди.
+                                </span>
+
+                            </div>
+
+
+                            <label class="upload-button">
+
+                                + Додати фото
+
+                                <input
+                                    id="photoInput"
+                                    type="file"
+                                    accept="image/jpeg,image/png,image/webp"
+                                    multiple
+                                    hidden
+                                >
+
                             </label>
 
-                            <input
-                                id="titleUk"
-                                type="text"
-                            >
-
                         </div>
 
 
-                        <div class="field">
-
-                            <label for="titleRu">
-                                Російська
-                            </label>
-
-                            <input
-                                id="titleRu"
-                                type="text"
-                            >
-
-                        </div>
-
-
-                        <div class="field">
-
-                            <label for="titleEn">
-                                English
-                            </label>
-
-                            <input
-                                id="titleEn"
-                                type="text"
-                            >
-
-                        </div>
-
-
-                        <div class="field">
-
-                            <label for="titleCz">
-                                Čeština
-                            </label>
-
-                            <input
-                                id="titleCz"
-                                type="text"
-                            >
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="divider-title">
-                        Описи
-                    </div>
-
-
-                    <div class="field">
-
-                        <label for="descriptionUk">
-                            Українська
-                        </label>
-
-                        <textarea
-                            id="descriptionUk"
-                        ></textarea>
-
-                    </div>
-
-
-                    <div class="field">
-
-                        <label for="descriptionRu">
-                            Російська
-                        </label>
-
-                        <textarea
-                            id="descriptionRu"
-                        ></textarea>
-
-                    </div>
-
-
-                    <div class="field">
-
-                        <label for="descriptionEn">
-                            English
-                        </label>
-
-                        <textarea
-                            id="descriptionEn"
-                        ></textarea>
-
-                    </div>
-
-
-                    <div class="field">
-
-                        <label for="descriptionCz">
-                            Čeština
-                        </label>
-
-                        <textarea
-                            id="descriptionCz"
-                        ></textarea>
-
-                    </div>
-
-
-                    <div class="two-columns">
-
-                        <div class="field">
-
-                            <label for="order">
-                                Порядок
-                            </label>
-
-                            <input
-                                id="order"
-                                type="number"
-                                min="0"
-                                value="1"
-                            >
-
-                        </div>
-
-
-                        <div class="field">
-
-                            <label for="active">
-                                Показувати на сайті
-                            </label>
-
-                            <select id="active">
-
-                                <option value="true">
-                                    Так
-                                </option>
-
-                                <option value="false">
-                                    Ні
-                                </option>
-
-                            </select>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="editor-actions">
-
-                        <button
-                            class="gold-button"
-                            type="submit"
+                        <div
+                            id="photosList"
+                            class="photos-list"
                         >
-                            Зберегти
-                        </button>
 
-                        <button
-                            id="deleteSessionButton"
-                            class="danger-button"
-                            type="button"
-                        >
-                            Видалити
-                        </button>
-
-                    </div>
-
-                </form>
-
-
-                <div class="photos-section">
-
-                    <div class="divider-title">
-                        Фотографії
-                    </div>
-
-
-                    <div class="upload-box">
-
-                        <div class="upload-copy">
-
-                            <strong>
-                                Додати фотографії
-                            </strong>
-
-                            <span>
-                                JPG, PNG, WEBP · до 8 MB
-                            </span>
+                            <div class="photos-empty">
+                                Фотографій поки немає.
+                            </div>
 
                         </div>
 
-
-                        <input
-                            id="photoInput"
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            multiple
-                        >
-
                     </div>
 
-
-                    <div
-                        id="photosList"
-                        class="photos-list"
-                    >
-                        Виберіть фотосесію.
-                    </div>
 
                 </div>
 
