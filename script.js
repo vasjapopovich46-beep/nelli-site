@@ -1,18 +1,6 @@
 ```javascript
-/* =========================================================
-   NELLI PHOTOGRAPHY
-   Main website script
-========================================================= */
-
-
-/* =========================================================
-   TRANSLATIONS
-========================================================= */
-
 const translations = {
-
     uk: {
-
         aboutNav: "Про мене",
         portfolioNav: "Портфоліо",
         servicesNav: "Послуги",
@@ -21,22 +9,15 @@ const translations = {
         heroEyebrow: "Фотографія · Прага · Європа",
         hero1: "ТВОЯ",
         hero2: "ІСТОРІЯ",
-        heroText:
-            "Фотографія про людей, почуття та моменти, які хочеться залишити з собою назавжди.",
+        heroText: "Фотографія про людей, почуття та моменти, які хочеться залишити з собою назавжди.",
         heroButton: "Забронювати зйомку",
 
         aboutEyebrow: "Про мене",
         aboutTitle1: "ПРИВІТ,",
         aboutTitle2: "Я НЕЛЛІ.",
-
-        aboutText1:
-            "Я фотографую людей такими, якими вони є — справжніми, живими та різними.",
-
-        aboutText2:
-            "Для мене фотографія — це не просто світло та композиція. Це почуття, яке повертає вас у конкретний момент.",
-
-        aboutText3:
-            "На моїх зйомках не потрібно вміти позувати. Я допоможу вам розслабитися і бути собою.",
+        aboutText1: "Я фотографую людей такими, якими вони є — справжніми, живими та різними.",
+        aboutText2: "Для мене фотографія — це не просто світло та композиція. Це почуття, яке повертає вас у конкретний момент.",
+        aboutText3: "На моїх зйомках не потрібно вміти позувати. Я допоможу вам розслабитися і бути собою.",
 
         portfolioEyebrow: "Вибрані роботи",
         portfolioTitle1: "МОЇ",
@@ -44,16 +25,12 @@ const translations = {
 
         wedding: "Весілля",
         weddingWork: "Цей день",
-
         love: "Історія кохання",
         loveWork: "Тільки ми",
-
         portrait: "Портрет",
         portraitWork: "Її історія",
-
         couple: "Пара",
         coupleWork: "Разом",
-
         youWork: "Ти",
 
         servicesEyebrow: "Послуги",
@@ -61,23 +38,18 @@ const translations = {
         servicesTitle2: "РОБЛЮ",
 
         portraitTitle: "Портрет",
-        portraitText:
-            "Індивідуальні портрети, особистий бренд та зйомки для себе.",
+        portraitText: "Індивідуальні портрети, особистий бренд та зйомки для себе.",
 
         loveTitle: "Історія кохання",
-        loveText:
-            "Щирі історії двох людей — прогулянки, побачення та особливі моменти.",
+        loveText: "Щирі історії двох людей — прогулянки, побачення та особливі моменти.",
 
         weddingTitle: "Весілля",
-        weddingText:
-            "Повний день або окремі частини весілля — від деталей до справжніх емоцій.",
+        weddingText: "Повний день або окремі частини весілля — від деталей до справжніх емоцій.",
 
         contactEyebrow: "Контакти",
         contactTitle1: "ДАВАЙТЕ",
         contactTitle2: "СТВОРЮВАТИ",
-
-        contactText:
-            "Розкажіть мені про вашу ідею. Я особисто зв'яжуся з вами.",
+        contactText: "Розкажіть мені про вашу ідею. Я особисто зв'яжуся з вами.",
 
         nameLabel: "Ім'я та прізвище",
         phoneLabel: "Телефон",
@@ -90,7 +62,6 @@ const translations = {
         message: "Розкажіть про вашу зйомку...",
 
         submit: "Надіслати заявку",
-
         sending: "Надсилаємо заявку...",
         success: "Дякуємо! Заявку отримано.",
         error: "Щось пішло не так. Спробуйте ще раз.",
@@ -98,9 +69,7 @@ const translations = {
         footer: "© 2026 Nelli Photography"
     },
 
-
     ru: {
-
         aboutNav: "Обо мне",
         portfolioNav: "Портфолио",
         servicesNav: "Услуги",
@@ -109,22 +78,15 @@ const translations = {
         heroEyebrow: "Фотография · Прага · Европа",
         hero1: "ТВОЯ",
         hero2: "ИСТОРИЯ",
-        heroText:
-            "Фотография о людях, чувствах и моментах, которые хочется сохранить навсегда.",
+        heroText: "Фотография о людях, чувствах и моментах, которые хочется сохранить навсегда.",
         heroButton: "Забронировать съёмку",
 
         aboutEyebrow: "Обо мне",
         aboutTitle1: "ПРИВЕТ,",
         aboutTitle2: "Я НЕЛЛИ.",
-
-        aboutText1:
-            "Я фотографирую людей такими, какие они есть — настоящими, живыми и разными.",
-
-        aboutText2:
-            "Для меня фотография — это не просто свет и композиция. Это чувство, которое возвращает вас в конкретный момент.",
-
-        aboutText3:
-            "На моих съёмках не нужно уметь позировать. Я помогу вам расслабиться и быть собой.",
+        aboutText1: "Я фотографирую людей такими, какие они есть — настоящими, живыми и разными.",
+        aboutText2: "Для меня фотография — это не просто свет и композиция. Это чувство, которое возвращает вас в конкретный момент.",
+        aboutText3: "На моих съёмках не нужно уметь позировать. Я помогу вам расслабиться и быть собой.",
 
         portfolioEyebrow: "Избранные работы",
         portfolioTitle1: "МОИ",
@@ -132,16 +94,12 @@ const translations = {
 
         wedding: "Свадьба",
         weddingWork: "Этот день",
-
         love: "История любви",
         loveWork: "Только мы",
-
         portrait: "Портрет",
         portraitWork: "Её история",
-
         couple: "Пара",
         coupleWork: "Вместе",
-
         youWork: "Ты",
 
         servicesEyebrow: "Услуги",
@@ -149,23 +107,16 @@ const translations = {
         servicesTitle2: "ДЕЛАЮ",
 
         portraitTitle: "Портрет",
-        portraitText:
-            "Индивидуальные портреты, личный бренд и съёмки для себя.",
-
+        portraitText: "Индивидуальные портреты, личный бренд и съёмки для себя.",
         loveTitle: "История любви",
-        loveText:
-            "Искренние истории двух людей и ваши особенные моменты.",
-
+        loveText: "Искренние истории двух людей и ваши особенные моменты.",
         weddingTitle: "Свадьба",
-        weddingText:
-            "Полный день или отдельные части свадьбы — от деталей до эмоций.",
+        weddingText: "Полный день или отдельные части свадьбы — от деталей до эмоций.",
 
         contactEyebrow: "Контакты",
         contactTitle1: "ДАВАЙТЕ",
         contactTitle2: "СОЗДАВАТЬ",
-
-        contactText:
-            "Расскажите мне о вашей идее. Я лично свяжусь с вами.",
+        contactText: "Расскажите мне о вашей идее. Я лично свяжусь с вами.",
 
         nameLabel: "Имя и фамилия",
         phoneLabel: "Телефон",
@@ -178,7 +129,6 @@ const translations = {
         message: "Расскажите о вашей съёмке...",
 
         submit: "Отправить заявку",
-
         sending: "Отправляем заявку...",
         success: "Спасибо! Заявка получена.",
         error: "Что-то пошло не так. Попробуйте ещё раз.",
@@ -186,9 +136,7 @@ const translations = {
         footer: "© 2026 Nelli Photography"
     },
 
-
     en: {
-
         aboutNav: "About me",
         portfolioNav: "Portfolio",
         servicesNav: "Services",
@@ -197,22 +145,15 @@ const translations = {
         heroEyebrow: "Photography · Prague · Europe",
         hero1: "YOUR",
         hero2: "STORY",
-        heroText:
-            "Photography about people, feelings and moments you want to keep forever.",
+        heroText: "Photography about people, feelings and moments you want to keep forever.",
         heroButton: "Book a session",
 
         aboutEyebrow: "About me",
         aboutTitle1: "HELLO,",
         aboutTitle2: "I'M NELLI.",
-
-        aboutText1:
-            "I photograph people as they really are — authentic, alive and unique.",
-
-        aboutText2:
-            "For me, photography is not only about light and composition. It is about a feeling that takes you back to a moment.",
-
-        aboutText3:
-            "You don't need to know how to pose. I will help you relax and simply be yourself.",
+        aboutText1: "I photograph people as they really are — authentic, alive and unique.",
+        aboutText2: "For me, photography is not only about light and composition. It is about a feeling that takes you back to a moment.",
+        aboutText3: "You don't need to know how to pose. I will help you relax and simply be yourself.",
 
         portfolioEyebrow: "Selected work",
         portfolioTitle1: "MY",
@@ -220,16 +161,12 @@ const translations = {
 
         wedding: "Wedding",
         weddingWork: "The day",
-
         love: "Love story",
         loveWork: "Just us",
-
         portrait: "Portrait",
         portraitWork: "Her story",
-
         couple: "Couple",
         coupleWork: "Together",
-
         youWork: "You",
 
         servicesEyebrow: "Services",
@@ -237,23 +174,16 @@ const translations = {
         servicesTitle2: "DO",
 
         portraitTitle: "Portrait",
-        portraitText:
-            "Individual portraits, personal branding and photoshoots for yourself.",
-
+        portraitText: "Individual portraits, personal branding and photoshoots for yourself.",
         loveTitle: "Love story",
-        loveText:
-            "Honest stories of two people and your special moments.",
-
+        loveText: "Honest stories of two people and your special moments.",
         weddingTitle: "Wedding",
-        weddingText:
-            "A full wedding day or selected parts — from details to real emotions.",
+        weddingText: "A full wedding day or selected parts — from details to real emotions.",
 
         contactEyebrow: "Contact",
         contactTitle1: "LET'S",
         contactTitle2: "CREATE",
-
-        contactText:
-            "Tell me about your idea. I will personally get back to you.",
+        contactText: "Tell me about your idea. I will personally get back to you.",
 
         nameLabel: "Full name",
         phoneLabel: "Phone",
@@ -266,7 +196,6 @@ const translations = {
         message: "Tell me about your photoshoot...",
 
         submit: "Send request",
-
         sending: "Sending your request...",
         success: "Thank you! Your request has been received.",
         error: "Something went wrong. Please try again.",
@@ -274,9 +203,7 @@ const translations = {
         footer: "© 2026 Nelli Photography"
     },
 
-
     cz: {
-
         aboutNav: "O mně",
         portfolioNav: "Portfolio",
         servicesNav: "Služby",
@@ -285,22 +212,15 @@ const translations = {
         heroEyebrow: "Fotografie · Praha · Evropa",
         hero1: "TVŮJ",
         hero2: "PŘÍBĚH",
-        heroText:
-            "Fotografie o lidech, emocích a okamžicích, které si chcete uchovat navždy.",
+        heroText: "Fotografie o lidech, emocích a okamžicích, které si chcete uchovat navždy.",
         heroButton: "Rezervovat focení",
 
         aboutEyebrow: "O mně",
         aboutTitle1: "AHOJ,",
         aboutTitle2: "JSEM NELLI.",
-
-        aboutText1:
-            "Fotografuji lidi takové, jací skutečně jsou — opravdové, živé a jedinečné.",
-
-        aboutText2:
-            "Pro mě fotografie není jen o světle a kompozici. Je o pocitu, který vás vrátí do konkrétního okamžiku.",
-
-        aboutText3:
-            "Nemusíte umět pózovat. Pomohu vám uvolnit se a být sami sebou.",
+        aboutText1: "Fotografuji lidi takové, jací skutečně jsou — opravdové, živé a jedinečné.",
+        aboutText2: "Pro mě fotografie není jen o světle a kompozici. Je o pocitu, který vás vrátí do konkrétního okamžiku.",
+        aboutText3: "Nemusíte umět pózovat. Pomohu vám uvolnit se a být sami sebou.",
 
         portfolioEyebrow: "Vybrané práce",
         portfolioTitle1: "MOJE",
@@ -308,16 +228,12 @@ const translations = {
 
         wedding: "Svatba",
         weddingWork: "Tento den",
-
         love: "Příběh lásky",
         loveWork: "Jen my",
-
         portrait: "Portrét",
         portraitWork: "Její příběh",
-
         couple: "Pár",
         coupleWork: "Spolu",
-
         youWork: "Ty",
 
         servicesEyebrow: "Služby",
@@ -325,23 +241,16 @@ const translations = {
         servicesTitle2: "DĚLÁM",
 
         portraitTitle: "Portrét",
-        portraitText:
-            "Individuální portréty, osobní značka a focení pro vás.",
-
+        portraitText: "Individuální portréty, osobní značka a focení pro vás.",
         loveTitle: "Příběh lásky",
-        loveText:
-            "Upřímné příběhy dvou lidí a vaše výjimečné okamžiky.",
-
+        loveText: "Upřímné příběhy dvou lidí a vaše výjimečné okamžiky.",
         weddingTitle: "Svatba",
-        weddingText:
-            "Celý svatební den nebo jeho jednotlivé části.",
+        weddingText: "Celý svatební den nebo jeho jednotlivé části.",
 
         contactEyebrow: "Kontakt",
         contactTitle1: "POJĎME",
         contactTitle2: "TVOŘIT",
-
-        contactText:
-            "Napište mi o vašem nápadu. Osobně se vám ozvu.",
+        contactText: "Napište mi o vašem nápadu. Osobně se vám ozvu.",
 
         nameLabel: "Jméno a příjmení",
         phoneLabel: "Telefon",
@@ -354,15 +263,32 @@ const translations = {
         message: "Napište mi o vašem focení...",
 
         submit: "Odeslat žádost",
-
         sending: "Odesíláme žádost...",
         success: "Děkujeme! Vaše žádost byla přijata.",
         error: "Něco se pokazilo. Zkuste to prosím znovu.",
 
         footer: "© 2026 Nelli Photography"
     }
-
 };
+
+
+/* =========================================================
+   FORM ELEMENTS
+========================================================= */
+
+const form = document.getElementById("bookingForm");
+const formMessage = document.getElementById("formMessage");
+const submitButton = document.getElementById("submitButton");
+
+let formStatus = "";
+
+
+/* =========================================================
+   GOOGLE APPS SCRIPT
+========================================================= */
+
+const GOOGLE_SCRIPT_URL =
+    "https://script.google.com/macros/s/AKfycbxmJELRpugwDjDo_MOlppUq1VZrt1101d_E68XOTUTpUOkVVvlwmLOZA-zilNhRoxc3/exec";
 
 
 /* =========================================================
@@ -371,6 +297,30 @@ const translations = {
 
 let currentLanguage =
     localStorage.getItem("nelli-language") || "uk";
+
+
+function updateFormMessage() {
+
+    if (!formMessage) {
+        return;
+    }
+
+    const translation =
+        translations[currentLanguage];
+
+    if (formStatus === "sending") {
+        formMessage.textContent =
+            translation.sending;
+    } else if (formStatus === "success") {
+        formMessage.textContent =
+            translation.success;
+    } else if (formStatus === "error") {
+        formMessage.textContent =
+            translation.error;
+    } else {
+        formMessage.textContent = "";
+    }
+}
 
 
 function setLanguage(language) {
@@ -406,12 +356,9 @@ function setLanguage(language) {
             if (
                 translation[key] !== undefined
             ) {
-
                 element.textContent =
                     translation[key];
-
             }
-
         });
 
 
@@ -425,12 +372,9 @@ function setLanguage(language) {
             if (
                 translation[key] !== undefined
             ) {
-
                 element.placeholder =
                     translation[key];
-
             }
-
         });
 
 
@@ -442,7 +386,6 @@ function setLanguage(language) {
                 "active",
                 button.dataset.lang === language
             );
-
         });
 
 
@@ -473,74 +416,6 @@ document
 
 
 /* =========================================================
-   FORM
-========================================================= */
-
-const form =
-    document.getElementById(
-        "bookingForm"
-    );
-
-const formMessage =
-    document.getElementById(
-        "formMessage"
-    );
-
-const submitButton =
-    document.getElementById(
-        "submitButton"
-    );
-
-let formStatus = "";
-
-
-/* =========================================================
-   FORM MESSAGE
-========================================================= */
-
-function updateFormMessage() {
-
-    const translation =
-        translations[currentLanguage];
-
-
-    if (!formMessage) {
-        return;
-    }
-
-
-    if (formStatus === "sending") {
-
-        formMessage.textContent =
-            translation.sending;
-
-    }
-
-    else if (formStatus === "success") {
-
-        formMessage.textContent =
-            translation.success;
-
-    }
-
-    else if (formStatus === "error") {
-
-        formMessage.textContent =
-            translation.error;
-
-    }
-
-    else {
-
-        formMessage.textContent =
-            "";
-
-    }
-
-}
-
-
-/* =========================================================
    FORM SUBMIT
 ========================================================= */
 
@@ -552,39 +427,29 @@ if (form) {
 
             event.preventDefault();
 
-
-            const nameElement =
-                document.getElementById("name");
-
-            const phoneElement =
-                document.getElementById("phone");
-
-            const emailElement =
-                document.getElementById("email");
-
-            const messageElement =
-                document.getElementById("message");
-
-
             const name =
-                nameElement
-                    ? nameElement.value.trim()
-                    : "";
+                document
+                    .getElementById("name")
+                    ?.value
+                    .trim() || "";
 
             const phone =
-                phoneElement
-                    ? phoneElement.value.trim()
-                    : "";
+                document
+                    .getElementById("phone")
+                    ?.value
+                    .trim() || "";
 
             const email =
-                emailElement
-                    ? emailElement.value.trim()
-                    : "";
+                document
+                    .getElementById("email")
+                    ?.value
+                    .trim() || "";
 
             const message =
-                messageElement
-                    ? messageElement.value.trim()
-                    : "";
+                document
+                    .getElementById("message")
+                    ?.value
+                    .trim() || "";
 
 
             if (!name || !phone) {
@@ -671,7 +536,6 @@ if (form) {
 
         }
     );
-
 }
 
 
