@@ -1,6 +1,7 @@
 const API_URL =
     "https://script.google.com/macros/s/AKfycbxmJELRpugwDjDo_MOlppUq1VZrt1101d_E68XOTUTpUOkVVvlwmLOZA-zilNhRoxc3/exec";
 
+
 const TOKEN_KEY =
     "nelli-admin-token";
 
@@ -13,10 +14,16 @@ const state = {
 
     photos: [],
 
-    currentId: null
+    currentId: null,
+
+    isNew: false
 
 };
 
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
 
 const loginScreen =
     document.getElementById(
@@ -66,15 +73,57 @@ const sessionsList =
     );
 
 
-const sessionForm =
+const sessionSearch =
     document.getElementById(
-        "sessionForm"
+        "sessionSearch"
+    );
+
+
+const sessionCount =
+    document.getElementById(
+        "sessionCount"
     );
 
 
 const newSessionButton =
     document.getElementById(
         "newSessionButton"
+    );
+
+
+const emptyCreateButton =
+    document.getElementById(
+        "emptyCreateButton"
+    );
+
+
+const emptyState =
+    document.getElementById(
+        "emptyState"
+    );
+
+
+const editor =
+    document.getElementById(
+        "editor"
+    );
+
+
+const editorTitle =
+    document.getElementById(
+        "editorTitle"
+    );
+
+
+const editorStatus =
+    document.getElementById(
+        "editorStatus"
+    );
+
+
+const saveSessionButton =
+    document.getElementById(
+        "saveSessionButton"
     );
 
 
@@ -132,7 +181,7 @@ function login() {
 
         setMessage(
             loginMessage,
-            "Введіть ключ."
+            "Введіть пароль."
         );
 
         return;
@@ -146,11 +195,11 @@ function login() {
 
     setMessage(
         loginMessage,
-        "Перевіряємо доступ..."
+        "Перевіряємо..."
     );
 
 
-    loadAdminData()
+    loadData()
 
         .then(
             function () {
@@ -161,14 +210,14 @@ function login() {
                 );
 
 
-                loginScreen
-                    .classList
-                    .add("hidden");
+                loginScreen.classList.add(
+                    "hidden"
+                );
 
 
-                app
-                    .classList
-                    .remove("hidden");
+                app.classList.remove(
+                    "hidden"
+                );
 
 
                 setMessage(
@@ -194,7 +243,7 @@ function login() {
 
                 setMessage(
                     loginMessage,
-                    "Невірний ключ або API недоступний."
+                    "Невірний пароль або API недоступний."
                 );
 
 
@@ -231,22 +280,23 @@ logoutButton.addEventListener(
         );
 
 
-        loginScreen
-            .classList
-            .remove("hidden");
+        loginScreen.classList.remove(
+            "hidden"
+        );
 
 
-        adminToken.value = "";
+        adminToken.value =
+            "";
 
     }
 );
 
 
 /* =========================================================
-   LOAD ADMIN DATA
+   LOAD DATA
 ========================================================= */
 
-function loadAdminData() {
+function loadData() {
 
     return new Promise(
         function (
@@ -273,6 +323,33 @@ function loadAdminData() {
                 false;
 
 
+            const timeout =
+                setTimeout(
+                    function () {
+
+                        if (finished) {
+                            return;
+                        }
+
+
+                        finished =
+                            true;
+
+
+                        cleanup();
+
+
+                        reject(
+                            new Error(
+                                "API недоступний."
+                            )
+                        );
+
+                    },
+                    15000
+                );
+
+
             function cleanup() {
 
                 clearTimeout(
@@ -289,16 +366,7 @@ function loadAdminData() {
                 } catch (error) {}
 
 
-                if (
-                    script.parentNode
-                ) {
-
-                    script.parentNode
-                        .removeChild(
-                            script
-                        );
-
-                }
+                script.remove();
 
             }
 
@@ -367,7 +435,7 @@ function loadAdminData() {
 
                         else {
 
-                            newSession();
+                            showEmpty();
 
                         }
 
@@ -383,40 +451,13 @@ function loadAdminData() {
                         reject(
                             new Error(
                                 data?.error ||
-                                "API error"
+                                "Помилка API."
                             )
                         );
 
                     }
 
                 };
-
-
-            const timeout =
-                setTimeout(
-                    function () {
-
-                        if (finished) {
-                            return;
-                        }
-
-
-                        finished =
-                            true;
-
-
-                        cleanup();
-
-
-                        reject(
-                            new Error(
-                                "API timeout"
-                            )
-                        );
-
-                    },
-                    15000
-                );
 
 
             const params =
@@ -475,43 +516,86 @@ function loadAdminData() {
 
 
 /* =========================================================
-   RENDER SESSIONS
+   RENDER SESSION LIST
 ========================================================= */
 
 function renderSessions() {
 
-    sessionsList.innerHTML =
-        "";
+    const search =
+        sessionSearch.value
+            .trim()
+            .toLowerCase();
 
 
-    const sessions =
+    const sorted =
         state.sessions
             .slice()
             .sort(
                 function (a, b) {
 
                     return (
-
                         Number(
                             a["Порядок"] || 0
                         ) -
-
                         Number(
                             b["Порядок"] || 0
                         )
-
                     );
 
                 }
             );
 
 
-    if (!sessions.length) {
+    const filtered =
+        sorted.filter(
+            function (session) {
+
+                const name =
+                    String(
+                        session["Назва UA"] || ""
+                    ).toLowerCase();
+
+
+                const category =
+                    String(
+                        session["Категорія"] || ""
+                    ).toLowerCase();
+
+
+                return (
+                    !search ||
+                    name.includes(search) ||
+                    category.includes(search)
+                );
+
+            }
+        );
+
+
+    sessionCount.textContent =
+        state.sessions.length +
+        (
+            state.sessions.length === 1
+                ? " фотосесія"
+                : " фотосесій"
+        );
+
+
+    sessionsList.innerHTML =
+        "";
+
+
+    if (!filtered.length) {
 
         sessionsList.innerHTML =
             `
-            <div style="color:#666">
-                Фотосесій поки немає.
+            <div style="
+                padding:25px 5px;
+                color:#666;
+                font-size:10px;
+                line-height:1.7;
+            ">
+                Нічого не знайдено.
             </div>
             `;
 
@@ -520,7 +604,7 @@ function renderSessions() {
     }
 
 
-    sessions.forEach(
+    filtered.forEach(
         function (session) {
 
             const card =
@@ -549,6 +633,12 @@ function renderSessions() {
             }
 
 
+            const photoCount =
+                countPhotos(
+                    session.ID
+                );
+
+
             const active =
                 String(
                     session["Активна"]
@@ -558,14 +648,18 @@ function renderSessions() {
 
             card.innerHTML = `
 
-                <div class="session-title">
+                <div class="session-card-photo-count">
+                    ${photoCount}
+                </div>
+
+                <div class="session-card-title">
                     ${escapeHtml(
                         session["Назва UA"] ||
                         "Без назви"
                     )}
                 </div>
 
-                <div class="session-meta">
+                <div class="session-card-meta">
                     ${escapeHtml(
                         session["Категорія"] ||
                         "other"
@@ -573,7 +667,7 @@ function renderSessions() {
                     ·
                     ${
                         active
-                            ? "активна"
+                            ? "на сайті"
                             : "прихована"
                     }
                 </div>
@@ -604,6 +698,16 @@ function renderSessions() {
 
 
 /* =========================================================
+   SEARCH
+========================================================= */
+
+sessionSearch.addEventListener(
+    "input",
+    renderSessions
+);
+
+
+/* =========================================================
    SELECT SESSION
 ========================================================= */
 
@@ -612,9 +716,7 @@ function selectSession(
 ) {
 
     const session =
-        findSession(
-            id
-        );
+        findSession(id);
 
 
     if (!session) {
@@ -626,65 +728,86 @@ function selectSession(
         session.ID;
 
 
+    state.isNew =
+        false;
+
+
+    showEditor();
+
+
     setValue(
-        "sessionId",
+        "sessionIdDisplay",
         session.ID
     );
 
-    setValue(
-        "category",
-        session["Категорія"]
-    );
-
-    setValue(
-        "slug",
-        session["Slug"]
-    );
 
     setValue(
         "titleUk",
         session["Назва UA"]
     );
 
-    setValue(
-        "titleRu",
-        session["Назва RU"]
-    );
 
     setValue(
-        "titleEn",
-        session["Назва EN"]
+        "category",
+        session["Категорія"] ||
+        "other"
     );
 
+
     setValue(
-        "titleCz",
-        session["Назва CZ"]
+        "slug",
+        session["Slug"]
     );
+
 
     setValue(
         "descriptionUk",
         session["Опис UA"]
     );
 
+
+    setValue(
+        "titleRu",
+        session["Назва RU"]
+    );
+
+
     setValue(
         "descriptionRu",
         session["Опис RU"]
     );
+
+
+    setValue(
+        "titleEn",
+        session["Назва EN"]
+    );
+
 
     setValue(
         "descriptionEn",
         session["Опис EN"]
     );
 
+
+    setValue(
+        "titleCz",
+        session["Назва CZ"]
+    );
+
+
     setValue(
         "descriptionCz",
         session["Опис CZ"]
     );
 
+
     setValue(
         "order",
-        session["Порядок"] || 1
+        session["Порядок"] ||
+        1
     );
+
 
     setValue(
         "active",
@@ -697,6 +820,11 @@ function selectSession(
     );
 
 
+    editorTitle.textContent =
+        session["Назва UA"] ||
+        "Фотосесія";
+
+
     renderSessions();
 
     renderPhotos();
@@ -705,210 +833,316 @@ function selectSession(
 
 
 /* =========================================================
-   NEW SESSION
+   CREATE NEW SESSION
 ========================================================= */
 
 newSessionButton.addEventListener(
     "click",
-    function () {
-
-        state.currentId =
-            null;
-
-
-        sessionForm.reset();
-
-
-        setValue(
-            "category",
-            "other"
-        );
-
-
-        setValue(
-            "order",
-            state.sessions.length + 1
-        );
-
-
-        setValue(
-            "active",
-            "true"
-        );
-
-
-        photosList.innerHTML =
-            `
-            <div style="color:#666">
-                Збережіть фотосесію,
-                щоб додати фотографії.
-            </div>
-            `;
-
-
-        renderSessions();
-
-    }
+    createNewSession
 );
+
+
+emptyCreateButton.addEventListener(
+    "click",
+    createNewSession
+);
+
+
+function createNewSession() {
+
+    /*
+     * Генеруємо ID одразу на браузері.
+     * Завдяки цьому нова сесія гарантовано
+     * стане поточною після збереження.
+     */
+
+    const id =
+        "session-" +
+        Date.now();
+
+
+    state.currentId =
+        id;
+
+
+    state.isNew =
+        true;
+
+
+    showEditor();
+
+
+    clearEditor();
+
+
+    setValue(
+        "sessionIdDisplay",
+        id
+    );
+
+
+    setValue(
+        "category",
+        "other"
+    );
+
+
+    setValue(
+        "order",
+        state.sessions.length + 1
+    );
+
+
+    setValue(
+        "active",
+        "true"
+    );
+
+
+    editorTitle.textContent =
+        "Нова фотосесія";
+
+
+    photosList.innerHTML =
+        `
+        <div class="photos-empty">
+            Спочатку збережіть фотосесію,
+            потім сюди можна буде додати фото.
+        </div>
+        `;
+
+
+    renderSessions();
+
+
+    setMessage(
+        editorStatus,
+        "Створення нової фотосесії"
+    );
+
+
+    document
+        .getElementById(
+            "titleUk"
+        )
+        .focus();
+
+}
 
 
 /* =========================================================
-   SAVE SESSION
+   SAVE
 ========================================================= */
 
-sessionForm.addEventListener(
-    "submit",
-    function (event) {
+saveSessionButton.addEventListener(
+    "click",
+    saveCurrentSession
+);
 
-        event.preventDefault();
+
+function saveCurrentSession() {
+
+    let id =
+        getValue(
+            "sessionIdDisplay"
+        );
 
 
-        const session = {
+    if (!id) {
 
-            id:
+        id =
+            "session-" +
+            Date.now();
+
+    }
+
+
+    const titleUk =
+        getValue(
+            "titleUk"
+        );
+
+
+    if (!titleUk) {
+
+        setMessage(
+            editorStatus,
+            "Введіть назву фотосесії."
+        );
+
+
+        document
+            .getElementById(
+                "titleUk"
+            )
+            .focus();
+
+
+        return;
+
+    }
+
+
+    let slug =
+        getValue(
+            "slug"
+        );
+
+
+    if (!slug) {
+
+        slug =
+            slugify(
+                titleUk
+            );
+
+    }
+
+
+    const session = {
+
+        id:
+            id,
+
+        category:
+            getValue(
+                "category"
+            ) || "other",
+
+        slug:
+            slug,
+
+        titleUk:
+            titleUk,
+
+        titleRu:
+            getValue(
+                "titleRu"
+            ),
+
+        titleEn:
+            getValue(
+                "titleEn"
+            ),
+
+        titleCz:
+            getValue(
+                "titleCz"
+            ),
+
+        descriptionUk:
+            getValue(
+                "descriptionUk"
+            ),
+
+        descriptionRu:
+            getValue(
+                "descriptionRu"
+            ),
+
+        descriptionEn:
+            getValue(
+                "descriptionEn"
+            ),
+
+        descriptionCz:
+            getValue(
+                "descriptionCz"
+            ),
+
+        order:
+            Number(
                 getValue(
-                    "sessionId"
-                ),
+                    "order"
+                ) || 0
+            ),
 
-            category:
-                getValue(
-                    "category"
-                ),
+        active:
+            getValue(
+                "active"
+            ) === "true",
 
-            slug:
-                getValue(
-                    "slug"
-                ),
+        cover:
+            getCurrentCover()
 
-            titleUk:
-                getValue(
-                    "titleUk"
-                ),
-
-            titleRu:
-                getValue(
-                    "titleRu"
-                ),
-
-            titleEn:
-                getValue(
-                    "titleEn"
-                ),
-
-            titleCz:
-                getValue(
-                    "titleCz"
-                ),
-
-            descriptionUk:
-                getValue(
-                    "descriptionUk"
-                ),
-
-            descriptionRu:
-                getValue(
-                    "descriptionRu"
-                ),
-
-            descriptionEn:
-                getValue(
-                    "descriptionEn"
-                ),
-
-            descriptionCz:
-                getValue(
-                    "descriptionCz"
-                ),
-
-            order:
-                Number(
-                    getValue(
-                        "order"
-                    ) || 0
-                ),
-
-            active:
-                getValue(
-                    "active"
-                ) ===
-                "true"
-
-        };
+    };
 
 
-        if (
-            !session.titleUk
-        ) {
+    state.currentId =
+        id;
+
+
+    state.isNew =
+        false;
+
+
+    setMessage(
+        editorStatus,
+        "Зберігаємо..."
+    );
+
+
+    postAdmin({
+
+        action:
+            "saveSession",
+
+        session:
+            session
+
+    })
+
+    .then(
+        function () {
+
+            return delay(
+                700
+            );
+
+        }
+    )
+
+    .then(
+        function () {
+
+            return loadData();
+
+        }
+    )
+
+    .then(
+        function () {
+
+            selectSession(id);
+
+
+            setMessage(
+                editorStatus,
+                "Збережено ✓"
+            );
+
 
             setMessage(
                 globalMessage,
-                "Введіть назву українською."
+                "Зміни збережено."
             );
 
-            return;
+        }
+    )
+
+    .catch(
+        function (error) {
+
+            setMessage(
+                editorStatus,
+                error.message ||
+                "Помилка збереження."
+            );
 
         }
+    );
 
-
-        setMessage(
-            globalMessage,
-            "Зберігаємо..."
-        );
-
-
-        postAdmin({
-
-            action:
-                "saveSession",
-
-            session:
-                session
-
-        })
-
-        .then(
-            function () {
-
-                return delay(
-                    700
-                );
-
-            }
-        )
-
-        .then(
-            function () {
-
-                return loadAdminData();
-
-            }
-        )
-
-        .then(
-            function () {
-
-                setMessage(
-                    globalMessage,
-                    "Фотосесію збережено ✓"
-                );
-
-            }
-        )
-
-        .catch(
-            function (error) {
-
-                setMessage(
-                    globalMessage,
-                    error.message ||
-                    "Помилка збереження."
-                );
-
-            }
-        );
-
-    }
-);
+}
 
 
 /* =========================================================
@@ -920,26 +1154,31 @@ deleteSessionButton.addEventListener(
     function () {
 
         const id =
-            getValue(
-                "sessionId"
-            );
+            state.currentId;
 
 
         if (!id) {
-
-            setMessage(
-                globalMessage,
-                "Виберіть фотосесію."
-            );
 
             return;
 
         }
 
 
+        const session =
+            findSession(id);
+
+
+        const name =
+            session
+                ? session["Назва UA"]
+                : "цю фотосесію";
+
+
         if (
             !confirm(
-                "Видалити фотосесію та всі її фото?"
+                "Видалити «" +
+                name +
+                "» та всі її фотографії?"
             )
         ) {
 
@@ -949,7 +1188,7 @@ deleteSessionButton.addEventListener(
 
 
         setMessage(
-            globalMessage,
+            editorStatus,
             "Видаляємо..."
         );
 
@@ -967,10 +1206,6 @@ deleteSessionButton.addEventListener(
         .then(
             function () {
 
-                state.currentId =
-                    null;
-
-
                 return delay(
                     700
                 );
@@ -981,7 +1216,11 @@ deleteSessionButton.addEventListener(
         .then(
             function () {
 
-                return loadAdminData();
+                state.currentId =
+                    null;
+
+
+                return loadData();
 
             }
         )
@@ -989,9 +1228,12 @@ deleteSessionButton.addEventListener(
         .then(
             function () {
 
+                showEmpty();
+
+
                 setMessage(
                     globalMessage,
-                    "Фотосесію видалено ✓"
+                    "Фотосесію видалено."
                 );
 
             }
@@ -1001,7 +1243,7 @@ deleteSessionButton.addEventListener(
             function (error) {
 
                 setMessage(
-                    globalMessage,
+                    editorStatus,
                     error.message ||
                     "Помилка видалення."
                 );
@@ -1014,7 +1256,7 @@ deleteSessionButton.addEventListener(
 
 
 /* =========================================================
-   UPLOAD PHOTOS
+   PHOTOS
 ========================================================= */
 
 photoInput.addEventListener(
@@ -1036,15 +1278,29 @@ async function uploadPhotos(
 ) {
 
     const sessionId =
-        getValue(
-            "sessionId"
-        );
+        state.currentId;
 
 
     if (!sessionId) {
 
         alert(
             "Спочатку виберіть фотосесію."
+        );
+
+
+        photoInput.value =
+            "";
+
+
+        return;
+
+    }
+
+
+    if (state.isNew) {
+
+        alert(
+            "Спочатку збережіть фотосесію."
         );
 
 
@@ -1100,7 +1356,7 @@ async function uploadPhotos(
 
 
         setMessage(
-            globalMessage,
+            editorStatus,
             "Завантаження " +
             (i + 1) +
             " / " +
@@ -1136,14 +1392,16 @@ async function uploadPhotos(
 
             });
 
+        }
 
-        } catch (error) {
+        catch (error) {
 
             setMessage(
-                globalMessage,
+                editorStatus,
                 error.message ||
                 "Помилка завантаження."
             );
+
 
             return;
 
@@ -1161,24 +1419,18 @@ async function uploadPhotos(
     );
 
 
-    try {
-
-        await loadAdminData();
+    await loadData();
 
 
-        setMessage(
-            globalMessage,
-            "Фотографії завантажено ✓"
-        );
+    selectSession(
+        sessionId
+    );
 
-    } catch (error) {
 
-        setMessage(
-            globalMessage,
-            "Фото відправлено. Оновіть сторінку через секунду."
-        );
-
-    }
+    setMessage(
+        editorStatus,
+        "Фотографії завантажено ✓"
+    );
 
 }
 
@@ -1193,7 +1445,7 @@ function renderPhotos() {
 
         photosList.innerHTML =
             `
-            <div style="color:#666">
+            <div class="photos-empty">
                 Виберіть фотосесію.
             </div>
             `;
@@ -1210,7 +1462,16 @@ function renderPhotos() {
 
 
     if (!session) {
+
+        photosList.innerHTML =
+            `
+            <div class="photos-empty">
+                Спочатку збережіть фотосесію.
+            </div>
+            `;
+
         return;
+
     }
 
 
@@ -1221,15 +1482,12 @@ function renderPhotos() {
                 function (photo) {
 
                     return (
-
                         String(
                             photo["Session ID"]
                         ) ===
-
                         String(
                             state.currentId
                         )
-
                     );
 
                 }
@@ -1239,15 +1497,12 @@ function renderPhotos() {
                 function (a, b) {
 
                     return (
-
                         Number(
                             a["Порядок"] || 0
                         ) -
-
                         Number(
                             b["Порядок"] || 0
                         )
-
                     );
 
                 }
@@ -1258,7 +1513,7 @@ function renderPhotos() {
 
         photosList.innerHTML =
             `
-            <div style="color:#666">
+            <div class="photos-empty">
                 У цій фотосесії ще немає фотографій.
             </div>
             `;
@@ -1289,12 +1544,10 @@ function renderPhotos() {
 
             const url =
                 fileId
-
                     ? "https://drive.google.com/uc?export=view&id=" +
                       encodeURIComponent(
                           fileId
                       )
-
                     : "";
 
 
@@ -1365,7 +1618,14 @@ function renderPhotos() {
                                         Обкладинка
                                     </button>
                                   `
-                                : ""
+                                : `
+                                    <button
+                                        type="button"
+                                        disabled
+                                    >
+                                        Обкладинка
+                                    </button>
+                                  `
                         }
 
 
@@ -1448,7 +1708,7 @@ function setCover(
 ) {
 
     setMessage(
-        globalMessage,
+        editorStatus,
         "Встановлюємо обкладинку..."
     );
 
@@ -1479,7 +1739,7 @@ function setCover(
     .then(
         function () {
 
-            return loadAdminData();
+            return loadData();
 
         }
     )
@@ -1487,8 +1747,13 @@ function setCover(
     .then(
         function () {
 
+            selectSession(
+                sessionId
+            );
+
+
             setMessage(
-                globalMessage,
+                editorStatus,
                 "Обкладинку встановлено ✓"
             );
 
@@ -1499,7 +1764,7 @@ function setCover(
         function (error) {
 
             setMessage(
-                globalMessage,
+                editorStatus,
                 error.message ||
                 "Помилка."
             );
@@ -1520,7 +1785,7 @@ function deletePhoto(
 
     if (
         !confirm(
-            "Видалити фотографію?"
+            "Видалити цю фотографію?"
         )
     ) {
 
@@ -1530,7 +1795,7 @@ function deletePhoto(
 
 
     setMessage(
-        globalMessage,
+        editorStatus,
         "Видаляємо фото..."
     );
 
@@ -1558,7 +1823,7 @@ function deletePhoto(
     .then(
         function () {
 
-            return loadAdminData();
+            return loadData();
 
         }
     )
@@ -1566,8 +1831,13 @@ function deletePhoto(
     .then(
         function () {
 
+            selectSession(
+                state.currentId
+            );
+
+
             setMessage(
-                globalMessage,
+                editorStatus,
                 "Фото видалено ✓"
             );
 
@@ -1578,7 +1848,7 @@ function deletePhoto(
         function (error) {
 
             setMessage(
-                globalMessage,
+                editorStatus,
                 error.message ||
                 "Помилка."
             );
@@ -1634,63 +1904,7 @@ function postAdmin(
 
 
 /* =========================================================
-   FILE → BASE64
-========================================================= */
-
-function readFile(
-    file
-) {
-
-    return new Promise(
-        function (
-            resolve,
-            reject
-        ) {
-
-            const reader =
-                new FileReader();
-
-
-            reader.onload =
-                function () {
-
-                    const result =
-                        String(
-                            reader.result
-                        );
-
-
-                    resolve(
-                        result.split(",")[1] || ""
-                    );
-
-                };
-
-
-            reader.onerror =
-                function () {
-
-                    reject(
-                        new Error(
-                            "Не вдалося прочитати файл."
-                        )
-                    );
-
-                };
-
-
-            reader.readAsDataURL(
-                file
-            );
-
-        }
-    );
-
-}
-
-
-/* =========================================================
-   HELPERS
+   UTILITIES
 ========================================================= */
 
 function findSession(
@@ -1700,13 +1914,35 @@ function findSession(
     return state.sessions.find(
         function (session) {
 
-            return String(
-                session.ID
-            ) ===
-            String(id);
+            return (
+                String(
+                    session.ID
+                ) ===
+                String(id)
+            );
 
         }
     ) || null;
+
+}
+
+
+function countPhotos(
+    sessionId
+) {
+
+    return state.photos.filter(
+        function (photo) {
+
+            return (
+                String(
+                    photo["Session ID"]
+                ) ===
+                String(sessionId)
+            );
+
+        }
+    ).length;
 
 }
 
@@ -1745,6 +1981,247 @@ function setValue(
             value ?? "";
 
     }
+
+}
+
+
+function clearEditor() {
+
+    const ids = [
+
+        "titleUk",
+        "titleRu",
+        "titleEn",
+        "titleCz",
+
+        "descriptionUk",
+        "descriptionRu",
+        "descriptionEn",
+        "descriptionCz",
+
+        "slug"
+
+    ];
+
+
+    ids.forEach(
+        function (id) {
+
+            setValue(
+                id,
+                ""
+            );
+
+        }
+    );
+
+}
+
+
+function showEditor() {
+
+    emptyState.classList.add(
+        "hidden"
+    );
+
+
+    editor.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+function showEmpty() {
+
+    editor.classList.add(
+        "hidden"
+    );
+
+
+    emptyState.classList.remove(
+        "hidden"
+    );
+
+
+    renderSessions();
+
+}
+
+
+function getCurrentCover() {
+
+    const session =
+        state.currentId
+            ? findSession(
+                state.currentId
+            )
+            : null;
+
+
+    return session
+        ? session["Обкладинка"] || ""
+        : "";
+
+}
+
+
+function slugify(
+    text
+) {
+
+    const transliteration = {
+
+        "а": "a",
+        "б": "b",
+        "в": "v",
+        "г": "h",
+        "ґ": "g",
+        "д": "d",
+        "е": "e",
+        "є": "ye",
+        "ж": "zh",
+        "з": "z",
+        "и": "y",
+        "і": "i",
+        "ї": "yi",
+        "й": "y",
+        "к": "k",
+        "л": "l",
+        "м": "m",
+        "н": "n",
+        "о": "o",
+        "п": "p",
+        "р": "r",
+        "с": "s",
+        "т": "t",
+        "у": "u",
+        "ф": "f",
+        "х": "kh",
+        "ц": "ts",
+        "ч": "ch",
+        "ш": "sh",
+        "щ": "shch",
+        "ь": "",
+        "ю": "yu",
+        "я": "ya",
+
+        "ё": "yo",
+        "ы": "y",
+        "э": "e",
+        "ъ": ""
+
+    };
+
+
+    return String(
+        text || ""
+    )
+        .toLowerCase()
+        .split("")
+        .map(
+            function (char) {
+
+                return (
+                    transliteration[char] ||
+                    char
+                );
+
+            }
+        )
+        .join("")
+        .replace(
+            /[^a-z0-9]+/g,
+            "-"
+        )
+        .replace(
+            /^-+|-+$/g,
+            ""
+        );
+
+}
+
+
+function readFile(
+    file
+) {
+
+    return new Promise(
+        function (
+            resolve,
+            reject
+        ) {
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function () {
+
+                    try {
+
+                        const result =
+                            String(
+                                reader.result
+                            );
+
+
+                        resolve(
+                            result.split(
+                                ","
+                            )[1] || ""
+                        );
+
+                    }
+
+                    catch (error) {
+
+                        reject(
+                            error
+                        );
+
+                    }
+
+                };
+
+
+            reader.onerror =
+                function () {
+
+                    reject(
+                        new Error(
+                            "Не вдалося прочитати файл."
+                        )
+                    );
+
+                };
+
+
+            reader.readAsDataURL(
+                file
+            );
+
+        }
+    );
+
+}
+
+
+function delay(
+    ms
+) {
+
+    return new Promise(
+        function (resolve) {
+
+            setTimeout(
+                resolve,
+                ms
+            );
+
+        }
+    );
 
 }
 
@@ -1800,24 +2277,6 @@ function escapeHtml(
 }
 
 
-function delay(
-    ms
-) {
-
-    return new Promise(
-        function (resolve) {
-
-            setTimeout(
-                resolve,
-                ms
-            );
-
-        }
-    );
-
-}
-
-
 /* =========================================================
    AUTO LOGIN
 ========================================================= */
@@ -1834,19 +2293,19 @@ if (savedToken) {
         savedToken;
 
 
-    loadAdminData()
+    loadData()
 
         .then(
             function () {
 
-                loginScreen
-                    .classList
-                    .add("hidden");
+                loginScreen.classList.add(
+                    "hidden"
+                );
 
 
-                app
-                    .classList
-                    .remove("hidden");
+                app.classList.remove(
+                    "hidden"
+                );
 
 
                 setMessage(
@@ -1865,8 +2324,7 @@ if (savedToken) {
                 );
 
 
-                state.token =
-                    "";
+                state.token = "";
 
             }
         );
