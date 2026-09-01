@@ -1,7 +1,8 @@
 const API_URL =
     "https://script.google.com/macros/s/AKfycbxmJELRpugwDjDo_MOlppUq1VZrt1101d_E68XOTUTpUOkVVvlwmLOZA-zilNhRoxc3/exec";
 
-const TOKEN_KEY = "nelli-admin-token";
+const TOKEN_KEY =
+    "nelli-admin-token";
 
 let state = {
     token: "",
@@ -10,10 +11,6 @@ let state = {
     currentId: null
 };
 
-
-/* =========================================================
-   ELEMENTS
-========================================================= */
 
 const loginScreen =
     document.getElementById("loginScreen");
@@ -46,9 +43,7 @@ const newSessionButton =
     document.getElementById("newSessionButton");
 
 const deleteSessionButton =
-    document.getElementById(
-        "deleteSessionButton"
-    );
+    document.getElementById("deleteSessionButton");
 
 const photoInput =
     document.getElementById("photoInput");
@@ -57,9 +52,9 @@ const photosList =
     document.getElementById("photosList");
 
 
-/* =========================================================
+/* =========================
    LOGIN
-========================================================= */
+========================= */
 
 loginButton.addEventListener(
     "click",
@@ -95,8 +90,7 @@ function login() {
     }
 
 
-    state.token =
-        token;
+    state.token = token;
 
 
     setMessage(
@@ -106,6 +100,7 @@ function login() {
 
 
     loadAdminData(
+
         function () {
 
             sessionStorage.setItem(
@@ -118,6 +113,7 @@ function login() {
                 "hidden"
             );
 
+
             app.classList.remove(
                 "hidden"
             );
@@ -127,6 +123,7 @@ function login() {
                 loginMessage,
                 ""
             );
+
 
             setMessage(
                 globalMessage,
@@ -139,20 +136,22 @@ function login() {
 
             state.token = "";
 
+
             setMessage(
                 loginMessage,
                 "Невірний ключ або API недоступний."
             );
 
         }
+
     );
 
 }
 
 
-/* =========================================================
+/* =========================
    LOGOUT
-========================================================= */
+========================= */
 
 logoutButton.addEventListener(
     "click",
@@ -162,32 +161,30 @@ logoutButton.addEventListener(
             TOKEN_KEY
         );
 
+
         state.token = "";
         state.currentId = null;
+
 
         app.classList.add(
             "hidden"
         );
 
+
         loginScreen.classList.remove(
             "hidden"
         );
 
-        adminToken.value = "";
 
-        setMessage(
-            loginMessage,
-            ""
-        );
+        adminToken.value = "";
 
     }
 );
 
 
-/* =========================================================
+/* =========================
    LOAD ADMIN DATA
-   JSONP для GitHub Pages
-========================================================= */
+========================= */
 
 function loadAdminData(
     success,
@@ -210,6 +207,35 @@ function loadAdminData(
 
 
     let finished = false;
+
+
+    function cleanup() {
+
+        clearTimeout(
+            timeout
+        );
+
+
+        try {
+
+            delete window[
+                callbackName
+            ];
+
+        } catch (error) {}
+
+
+        if (
+            script.parentNode
+        ) {
+
+            script.parentNode.removeChild(
+                script
+            );
+
+        }
+
+    }
 
 
     window[callbackName] =
@@ -297,33 +323,6 @@ function loadAdminData(
         };
 
 
-    function cleanup() {
-
-        clearTimeout(
-            timeout
-        );
-
-
-        try {
-            delete window[
-                callbackName
-            ];
-        } catch (error) {}
-
-
-        if (
-            script.parentNode
-        ) {
-
-            script.parentNode.removeChild(
-                script
-            );
-
-        }
-
-    }
-
-
     const timeout =
         setTimeout(
             function () {
@@ -343,7 +342,7 @@ function loadAdminData(
                     failure({
 
                         error:
-                            "Час очікування API вичерпано."
+                            "API недоступний або час очікування вичерпано."
 
                     });
 
@@ -354,7 +353,7 @@ function loadAdminData(
         );
 
 
-    const query =
+    const params =
         new URLSearchParams({
 
             action:
@@ -372,7 +371,7 @@ function loadAdminData(
     script.src =
         API_URL +
         "?" +
-        query.toString();
+        params.toString();
 
 
     script.onerror =
@@ -384,6 +383,7 @@ function loadAdminData(
 
 
             finished = true;
+
 
             cleanup();
 
@@ -409,13 +409,14 @@ function loadAdminData(
 }
 
 
-/* =========================================================
-   RENDER SESSIONS
-========================================================= */
+/* =========================
+   SESSIONS
+========================= */
 
 function renderSessions() {
 
-    sessionsList.innerHTML = "";
+    sessionsList.innerHTML =
+        "";
 
 
     const sorted =
@@ -447,6 +448,7 @@ function renderSessions() {
             `;
 
         return;
+
     }
 
 
@@ -501,9 +503,11 @@ function renderSessions() {
                         "other"
                     )}
                     ·
-                    ${active
-                        ? "активна"
-                        : "прихована"}
+                    ${
+                        active
+                            ? "активна"
+                            : "прихована"
+                    }
                 </div>
 
             `;
@@ -531,13 +535,11 @@ function renderSessions() {
 }
 
 
-/* =========================================================
-   SELECT SESSION
-========================================================= */
+/* =========================
+   SELECT
+========================= */
 
-function selectSession(
-    id
-) {
+function selectSession(id) {
 
     const session =
         findSession(id);
@@ -612,7 +614,6 @@ function selectSession(
         session["Порядок"] || 1
     );
 
-
     setValue(
         "active",
         String(
@@ -631,9 +632,9 @@ function selectSession(
 }
 
 
-/* =========================================================
+/* =========================
    NEW SESSION
-========================================================= */
+========================= */
 
 newSessionButton.addEventListener(
     "click",
@@ -643,7 +644,8 @@ newSessionButton.addEventListener(
 
 function newSession() {
 
-    state.currentId = null;
+    state.currentId =
+        null;
 
 
     sessionForm.reset();
@@ -693,9 +695,9 @@ function newSession() {
 }
 
 
-/* =========================================================
+/* =========================
    SAVE SESSION
-========================================================= */
+========================= */
 
 sessionForm.addEventListener(
     "submit",
@@ -707,71 +709,46 @@ sessionForm.addEventListener(
         const session = {
 
             id:
-                getValue(
-                    "sessionId"
-                ),
+                getValue("sessionId"),
 
             category:
-                getValue(
-                    "category"
-                ),
+                getValue("category"),
 
             slug:
-                getValue(
-                    "slug"
-                ),
+                getValue("slug"),
 
             titleUk:
-                getValue(
-                    "titleUk"
-                ),
+                getValue("titleUk"),
 
             titleRu:
-                getValue(
-                    "titleRu"
-                ),
+                getValue("titleRu"),
 
             titleEn:
-                getValue(
-                    "titleEn"
-                ),
+                getValue("titleEn"),
 
             titleCz:
-                getValue(
-                    "titleCz"
-                ),
+                getValue("titleCz"),
 
             descriptionUk:
-                getValue(
-                    "descriptionUk"
-                ),
+                getValue("descriptionUk"),
 
             descriptionRu:
-                getValue(
-                    "descriptionRu"
-                ),
+                getValue("descriptionRu"),
 
             descriptionEn:
-                getValue(
-                    "descriptionEn"
-                ),
+                getValue("descriptionEn"),
 
             descriptionCz:
-                getValue(
-                    "descriptionCz"
-                ),
+                getValue("descriptionCz"),
 
             order:
                 Number(
-                    getValue(
-                        "order"
-                    ) || 0
+                    getValue("order") || 0
                 ),
 
             active:
-                getValue(
-                    "active"
-                ) === "true"
+                getValue("active") ===
+                "true"
 
         };
 
@@ -805,7 +782,6 @@ sessionForm.addEventListener(
 
         })
 
-
         .then(
             function () {
 
@@ -827,7 +803,6 @@ sessionForm.addEventListener(
             }
         )
 
-
         .catch(
             function (error) {
 
@@ -844,9 +819,9 @@ sessionForm.addEventListener(
 );
 
 
-/* =========================================================
+/* =========================
    DELETE SESSION
-========================================================= */
+========================= */
 
 deleteSessionButton.addEventListener(
     "click",
@@ -870,14 +845,14 @@ deleteSessionButton.addEventListener(
         }
 
 
-        const confirmed =
-            confirm(
+        if (
+            !confirm(
                 "Видалити фотосесію та всі її фотографії?"
-            );
+            )
+        ) {
 
-
-        if (!confirmed) {
             return;
+
         }
 
 
@@ -896,7 +871,6 @@ deleteSessionButton.addEventListener(
                 id
 
         })
-
 
         .then(
             function () {
@@ -923,7 +897,6 @@ deleteSessionButton.addEventListener(
             }
         )
 
-
         .catch(
             function (error) {
 
@@ -940,31 +913,27 @@ deleteSessionButton.addEventListener(
 );
 
 
-/* =========================================================
+/* =========================
    PHOTO INPUT
-========================================================= */
+========================= */
 
 photoInput.addEventListener(
     "change",
     function () {
 
-        const files =
+        uploadPhotos(
             Array.from(
                 photoInput.files
-            );
-
-
-        uploadPhotos(
-            files
+            )
         );
 
     }
 );
 
 
-/* =========================================================
-   UPLOAD PHOTOS
-========================================================= */
+/* =========================
+   UPLOAD
+========================= */
 
 async function uploadPhotos(
     files
@@ -982,10 +951,11 @@ async function uploadPhotos(
             "Спочатку збережіть фотосесію."
         );
 
-
-        photoInput.value = "";
+        photoInput.value =
+            "";
 
         return;
+
     }
 
 
@@ -1002,17 +972,6 @@ async function uploadPhotos(
 
         const file =
             files[i];
-
-
-        if (
-            !file.type.startsWith(
-                "image/"
-            )
-        ) {
-
-            continue;
-
-        }
 
 
         if (
@@ -1071,7 +1030,6 @@ async function uploadPhotos(
 
         }
 
-
         catch (error) {
 
             setMessage(
@@ -1087,7 +1045,8 @@ async function uploadPhotos(
     }
 
 
-    photoInput.value = "";
+    photoInput.value =
+        "";
 
 
     setTimeout(
@@ -1105,15 +1064,15 @@ async function uploadPhotos(
             );
 
         },
-        900
+        800
     );
 
 }
 
 
-/* =========================================================
-   RENDER PHOTOS
-========================================================= */
+/* =========================
+   PHOTOS
+========================= */
 
 function renderPhotos() {
 
@@ -1127,6 +1086,7 @@ function renderPhotos() {
             `;
 
         return;
+
     }
 
 
@@ -1137,14 +1097,6 @@ function renderPhotos() {
 
 
     if (!session) {
-
-        photosList.innerHTML =
-            `
-            <div style="color:#666">
-                Фотосесію не знайдено.
-            </div>
-            `;
-
         return;
     }
 
@@ -1191,6 +1143,7 @@ function renderPhotos() {
             `;
 
         return;
+
     }
 
 
@@ -1249,18 +1202,7 @@ function renderPhotos() {
                                     loading="lazy"
                                 >
                               `
-                            : `
-                                <div style="
-                                    width:100%;
-                                    height:100%;
-                                    display:flex;
-                                    align-items:center;
-                                    justify-content:center;
-                                    color:#555;
-                                ">
-                                    Фото
-                                </div>
-                              `
+                            : ""
                     }
 
                     ${
@@ -1303,7 +1245,7 @@ function renderPhotos() {
                                         type="button"
                                         data-cover
                                     >
-                                        Зробити обкладинкою
+                                        Обкладинка
                                     </button>
                                   `
                         }
@@ -1378,9 +1320,9 @@ function renderPhotos() {
 }
 
 
-/* =========================================================
-   SET COVER
-========================================================= */
+/* =========================
+   COVER
+========================= */
 
 function setCover(
     sessionId,
@@ -1406,7 +1348,6 @@ function setCover(
 
     })
 
-
     .then(
         function () {
 
@@ -1431,7 +1372,6 @@ function setCover(
         }
     )
 
-
     .catch(
         function (error) {
 
@@ -1447,28 +1387,28 @@ function setCover(
 }
 
 
-/* =========================================================
+/* =========================
    DELETE PHOTO
-========================================================= */
+========================= */
 
 function deletePhoto(
     photoId
 ) {
 
-    const confirmed =
-        confirm(
+    if (
+        !confirm(
             "Видалити фотографію?"
-        );
+        )
+    ) {
 
-
-    if (!confirmed) {
         return;
+
     }
 
 
     setMessage(
         globalMessage,
-        "Видаляємо фото..."
+        "Видаляємо..."
     );
 
 
@@ -1481,7 +1421,6 @@ function deletePhoto(
             photoId
 
     })
-
 
     .then(
         function () {
@@ -1507,7 +1446,6 @@ function deletePhoto(
         }
     )
 
-
     .catch(
         function (error) {
 
@@ -1523,76 +1461,40 @@ function deletePhoto(
 }
 
 
-/* =========================================================
-   POST TO APPS SCRIPT
-========================================================= */
+/* =========================
+   POST
+========================= */
 
 function postAdmin(
     payload
 ) {
 
-    return new Promise(
-        function (
-            resolve,
-            reject
-        ) {
+    return fetch(
+        API_URL,
+        {
+            method:
+                "POST",
 
-            fetch(
-                API_URL,
-                {
+            mode:
+                "no-cors",
 
-                    method:
-                        "POST",
+            headers: {
+                "Content-Type":
+                    "text/plain;charset=utf-8"
+            },
 
-                    mode:
-                        "no-cors",
+            body:
+                JSON.stringify({
 
-                    headers: {
+                    admin:
+                        true,
 
-                        "Content-Type":
-                            "text/plain;charset=utf-8"
+                    token:
+                        state.token,
 
-                    },
+                    ...payload
 
-                    body:
-                        JSON.stringify({
-
-                            admin:
-                                true,
-
-                            token:
-                                state.token,
-
-                            ...payload
-
-                        })
-
-                }
-            )
-
-            .then(
-                function () {
-
-                    /*
-                     * no-cors приховує відповідь браузеру,
-                     * тому вважаємо сам факт завершення
-                     * fetch успішною передачею запиту.
-                     */
-
-                    resolve();
-
-                }
-            )
-
-            .catch(
-                function (error) {
-
-                    reject(
-                        error
-                    );
-
-                }
-            );
+                })
 
         }
     );
@@ -1600,9 +1502,9 @@ function postAdmin(
 }
 
 
-/* =========================================================
-   READ FILE
-========================================================= */
+/* =========================
+   FILE
+========================= */
 
 function readFile(
     file
@@ -1629,14 +1531,8 @@ function readFile(
                             );
 
 
-                        const parts =
-                            result.split(
-                                ","
-                            );
-
-
                         resolve(
-                            parts[1] || ""
+                            result.split(",")[1] || ""
                         );
 
                     }
@@ -1674,9 +1570,9 @@ function readFile(
 }
 
 
-/* =========================================================
-   FIND SESSION
-========================================================= */
+/* =========================
+   HELPERS
+========================= */
 
 function findSession(
     id
@@ -1688,19 +1584,13 @@ function findSession(
             return String(
                 session.ID
             ) ===
-            String(
-                id
-            );
+            String(id);
 
         }
     ) || null;
 
 }
 
-
-/* =========================================================
-   VALUE HELPERS
-========================================================= */
 
 function getValue(
     id
@@ -1740,10 +1630,6 @@ function setValue(
 }
 
 
-/* =========================================================
-   MESSAGE
-========================================================= */
-
 function setMessage(
     element,
     text
@@ -1758,10 +1644,6 @@ function setMessage(
 
 }
 
-
-/* =========================================================
-   ESCAPE HTML
-========================================================= */
 
 function escapeHtml(
     value
@@ -1799,9 +1681,9 @@ function escapeHtml(
 }
 
 
-/* =========================================================
-   START
-========================================================= */
+/* =========================
+   AUTO LOGIN
+========================= */
 
 const savedToken =
     sessionStorage.getItem(
@@ -1816,15 +1698,18 @@ if (savedToken) {
 
 
     loadAdminData(
+
         function () {
 
             loginScreen.classList.add(
                 "hidden"
             );
 
+
             app.classList.remove(
                 "hidden"
             );
+
 
             setMessage(
                 globalMessage,
@@ -1832,15 +1717,19 @@ if (savedToken) {
             );
 
         },
+
         function () {
 
             sessionStorage.removeItem(
                 TOKEN_KEY
             );
 
-            state.token = "";
+
+            state.token =
+                "";
 
         }
+
     );
 
 }
