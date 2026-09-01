@@ -7,24 +7,24 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0"
+        content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     >
 
-    <title>Nelli Photography — Адмінка</title>
+    <meta
+        name="theme-color"
+        content="#070707"
+    >
+
+    <title>Nelli Photography — Admin</title>
 
     <link
         rel="stylesheet"
-        href="admin.css"
+        href="admin.css?v=20260901"
     >
 
 </head>
 
 <body>
-
-
-<!-- ======================================================
-     LOGIN
-====================================================== -->
 
 <div
     id="loginScreen"
@@ -52,23 +52,33 @@
         </h1>
 
         <p>
-            Введіть пароль для керування сайтом.
+            Введіть ключ адміністратора.
         </p>
 
-        <input
-            id="adminToken"
-            type="password"
-            placeholder="Пароль"
-            autocomplete="off"
-        >
 
-        <button
-            id="loginButton"
-            class="gold-button full-button"
-            type="button"
-        >
-            Увійти
-        </button>
+        <form id="loginForm">
+
+            <input
+                id="adminToken"
+                type="password"
+                placeholder="Ключ адміністратора"
+                autocomplete="current-password"
+                autocapitalize="off"
+                spellcheck="false"
+                enterkeyhint="go"
+            >
+
+
+            <button
+                id="loginButton"
+                class="gold-button full-button"
+                type="submit"
+            >
+                Увійти
+            </button>
+
+        </form>
+
 
         <div
             id="loginMessage"
@@ -80,17 +90,10 @@
 </div>
 
 
-<!-- ======================================================
-     APP
-====================================================== -->
-
 <div
     id="app"
     class="app hidden"
 >
-
-
-    <!-- HEADER -->
 
     <header class="admin-header">
 
@@ -127,12 +130,8 @@
     </header>
 
 
-    <!-- MAIN -->
-
     <main class="admin-main">
 
-
-        <!-- PAGE HEADER -->
 
         <div class="page-heading">
 
@@ -147,7 +146,7 @@
                 </h1>
 
                 <p class="page-description">
-                    Тут можна керувати фотосесіями та фотографіями сайту.
+                    Керуйте фотосесіями та фотографіями сайту.
                 </p>
 
             </div>
@@ -164,8 +163,6 @@
         </div>
 
 
-        <!-- SEARCH -->
-
         <div class="toolbar">
 
             <div class="search-box">
@@ -176,11 +173,13 @@
 
                 <input
                     id="sessionSearch"
-                    type="text"
+                    type="search"
                     placeholder="Пошук фотосесії..."
+                    autocomplete="off"
                 >
 
             </div>
+
 
             <div
                 id="sessionCount"
@@ -192,12 +191,8 @@
         </div>
 
 
-        <!-- CONTENT -->
-
         <div class="admin-layout">
 
-
-            <!-- SESSION LIST -->
 
             <aside class="sessions-panel">
 
@@ -216,8 +211,6 @@
 
             </aside>
 
-
-            <!-- EDITOR -->
 
             <section class="editor-panel">
 
@@ -257,8 +250,6 @@
                 >
 
 
-                    <!-- EDITOR HEADER -->
-
                     <div class="editor-header">
 
                         <div>
@@ -281,8 +272,6 @@
 
                     </div>
 
-
-                    <!-- BASIC INFO -->
 
                     <div class="form-section">
 
@@ -359,10 +348,6 @@
                                     value="1"
                                 >
 
-                                <div class="field-help">
-                                    Менше число = вище на сайті.
-                                </div>
-
                             </div>
 
 
@@ -398,7 +383,6 @@
 
                             <div class="two-columns advanced-fields">
 
-
                                 <div class="field">
 
                                     <label for="slug">
@@ -408,19 +392,15 @@
                                     <input
                                         id="slug"
                                         type="text"
-                                        placeholder="wedding-olena-max"
+                                        placeholder="wedding-olena"
                                     >
-
-                                    <div class="field-help">
-                                        Можна залишити порожнім — створиться автоматично.
-                                    </div>
 
                                 </div>
 
 
                                 <div class="field">
 
-                                    <label>
+                                    <label for="sessionIdDisplay">
                                         ID
                                     </label>
 
@@ -438,8 +418,6 @@
 
                     </div>
 
-
-                    <!-- LANGUAGES -->
 
                     <div class="form-section">
 
@@ -579,16 +557,10 @@
                     </div>
 
 
-                    <!-- ACTIONS -->
-
                     <div class="save-bar">
 
-                        <div>
-
-                            <div class="save-hint">
-                                Не забудьте зберегти зміни.
-                            </div>
-
+                        <div class="save-hint">
+                            Збережіть зміни після редагування.
                         </div>
 
 
@@ -607,15 +579,13 @@
                                 class="gold-button"
                                 type="button"
                             >
-                                Зберегти зміни
+                                Зберегти
                             </button>
 
                         </div>
 
                     </div>
 
-
-                    <!-- PHOTOS -->
 
                     <div class="photos-section">
 
@@ -633,7 +603,7 @@
                                 </strong>
 
                                 <span>
-                                    Завантажуйте фото прямо сюди.
+                                    Додайте фотографії з телефона або комп'ютера.
                                 </span>
 
                             </div>
@@ -672,7 +642,6 @@
 
                 </div>
 
-
             </section>
 
         </div>
@@ -682,7 +651,7 @@
 </div>
 
 
-<script src="admin.js"></script>
+<script src="admin.js?v=20260901"></script>
 
 </body>
 
