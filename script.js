@@ -1,3 +1,5 @@
+const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxmJELRpugwDjDo_MOlppUq1VZrt1101d_E68XOTUTpUOkVVvlwmLOZA-zilNhRoxc3/exec";
+
 const translations = {
     uk: {
         aboutNav: "Про мене",
@@ -21,7 +23,6 @@ const translations = {
         portfolioEyebrow: "Вибрані роботи",
         portfolioTitle1: "МОЇ",
         portfolioTitle2: "РОБОТИ",
-
         wedding: "Весілля",
         weddingWork: "Цей день",
         love: "Історія кохання",
@@ -38,10 +39,8 @@ const translations = {
 
         portraitTitle: "Портрет",
         portraitText: "Індивідуальні портрети, особистий бренд та зйомки для себе.",
-
         loveTitle: "Історія кохання",
         loveText: "Щирі історії двох людей — прогулянки, побачення та особливі моменти.",
-
         weddingTitle: "Весілля",
         weddingText: "Повний день або окремі частини весілля — від деталей до справжніх емоцій.",
 
@@ -90,7 +89,6 @@ const translations = {
         portfolioEyebrow: "Избранные работы",
         portfolioTitle1: "МОИ",
         portfolioTitle2: "РАБОТЫ",
-
         wedding: "Свадьба",
         weddingWork: "Этот день",
         love: "История любви",
@@ -157,7 +155,6 @@ const translations = {
         portfolioEyebrow: "Selected work",
         portfolioTitle1: "MY",
         portfolioTitle2: "WORK",
-
         wedding: "Wedding",
         weddingWork: "The day",
         love: "Love story",
@@ -224,7 +221,6 @@ const translations = {
         portfolioEyebrow: "Vybrané práce",
         portfolioTitle1: "MOJE",
         portfolioTitle2: "PRÁCE",
-
         wedding: "Svatba",
         weddingWork: "Tento den",
         love: "Příběh lásky",
@@ -271,278 +267,220 @@ const translations = {
 };
 
 
-/* =========================================================
-   FORM ELEMENTS
-========================================================= */
+document.addEventListener("DOMContentLoaded", function () {
 
-const form = document.getElementById("bookingForm");
-const formMessage = document.getElementById("formMessage");
-const submitButton = document.getElementById("submitButton");
+    let currentLanguage =
+        localStorage.getItem("nelli-language") || "uk";
 
-let formStatus = "";
+    const form =
+        document.getElementById("bookingForm");
 
+    const formMessage =
+        document.getElementById("formMessage");
 
-/* =========================================================
-   GOOGLE APPS SCRIPT
-========================================================= */
-
-const GOOGLE_SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbxmJELRpugwDjDo_MOlppUq1VZrt1101d_E68XOTUTpUOkVVvlwmLOZA-zilNhRoxc3/exec";
+    const submitButton =
+        document.getElementById("submitButton");
 
 
-/* =========================================================
-   LANGUAGE
-========================================================= */
+    function updateFormMessage() {
 
-let currentLanguage =
-    localStorage.getItem("nelli-language") || "uk";
+        if (!formMessage) return;
 
+        const t = translations[currentLanguage];
 
-function updateFormMessage() {
-
-    if (!formMessage) {
-        return;
+        if (formStatus === "sending") {
+            formMessage.textContent = t.sending;
+        } else if (formStatus === "success") {
+            formMessage.textContent = t.success;
+        } else if (formStatus === "error") {
+            formMessage.textContent = t.error;
+        } else {
+            formMessage.textContent = "";
+        }
     }
 
-    const translation =
-        translations[currentLanguage];
 
-    if (formStatus === "sending") {
-        formMessage.textContent =
-            translation.sending;
-    } else if (formStatus === "success") {
-        formMessage.textContent =
-            translation.success;
-    } else if (formStatus === "error") {
-        formMessage.textContent =
-            translation.error;
-    } else {
-        formMessage.textContent = "";
+    let formStatus = "";
+
+
+    function setLanguage(language) {
+
+        if (!translations[language]) {
+            language = "uk";
+        }
+
+        currentLanguage = language;
+
+        localStorage.setItem(
+            "nelli-language",
+            language
+        );
+
+        document.documentElement.lang =
+            language === "cz" ? "cs" : language;
+
+
+        document
+            .querySelectorAll("[data-t]")
+            .forEach(function (element) {
+
+                const key =
+                    element.getAttribute("data-t");
+
+                if (
+                    translations[language][key] !== undefined
+                ) {
+                    element.textContent =
+                        translations[language][key];
+                }
+            });
+
+
+        document
+            .querySelectorAll("[data-placeholder]")
+            .forEach(function (element) {
+
+                const key =
+                    element.getAttribute("data-placeholder");
+
+                if (
+                    translations[language][key] !== undefined
+                ) {
+                    element.placeholder =
+                        translations[language][key];
+                }
+            });
+
+
+        document
+            .querySelectorAll(".lang")
+            .forEach(function (button) {
+
+                button.classList.toggle(
+                    "active",
+                    button.getAttribute("data-lang") === language
+                );
+            });
+
+
+        updateFormMessage();
     }
-}
-
-
-function setLanguage(language) {
-
-    const translation =
-        translations[language];
-
-    if (!translation) {
-        return;
-    }
-
-    currentLanguage =
-        language;
-
-    localStorage.setItem(
-        "nelli-language",
-        language
-    );
-
-    document.documentElement.lang =
-        language === "cz"
-            ? "cs"
-            : language;
-
-
-    document
-        .querySelectorAll("[data-t]")
-        .forEach(element => {
-
-            const key =
-                element.dataset.t;
-
-            if (
-                translation[key] !== undefined
-            ) {
-                element.textContent =
-                    translation[key];
-            }
-        });
-
-
-    document
-        .querySelectorAll("[data-placeholder]")
-        .forEach(element => {
-
-            const key =
-                element.dataset.placeholder;
-
-            if (
-                translation[key] !== undefined
-            ) {
-                element.placeholder =
-                    translation[key];
-            }
-        });
 
 
     document
         .querySelectorAll(".lang")
-        .forEach(button => {
+        .forEach(function (button) {
 
-            button.classList.toggle(
-                "active",
-                button.dataset.lang === language
+            button.addEventListener(
+                "click",
+                function () {
+
+                    setLanguage(
+                        button.getAttribute("data-lang")
+                    );
+
+                }
             );
+
         });
 
 
-    updateFormMessage();
-}
+    if (form) {
+
+        form.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
 
 
-/* =========================================================
-   LANGUAGE BUTTONS
-========================================================= */
+                const name =
+                    document.getElementById("name")?.value.trim() || "";
 
-document
-    .querySelectorAll(".lang")
-    .forEach(button => {
+                const phone =
+                    document.getElementById("phone")?.value.trim() || "";
 
-        button.addEventListener(
-            "click",
-            () => {
+                const email =
+                    document.getElementById("email")?.value.trim() || "";
 
-                setLanguage(
-                    button.dataset.lang
-                );
+                const message =
+                    document.getElementById("message")?.value.trim() || "";
+
+
+                if (!name || !phone) {
+
+                    formStatus = "error";
+
+                    updateFormMessage();
+
+                    return;
+                }
+
+
+                formStatus = "sending";
+
+                updateFormMessage();
+
+
+                if (submitButton) {
+                    submitButton.disabled = true;
+                }
+
+
+                try {
+
+                    await fetch(
+                        GOOGLE_SCRIPT_URL,
+                        {
+                            method: "POST",
+                            mode: "no-cors",
+
+                            headers: {
+                                "Content-Type":
+                                    "text/plain;charset=utf-8"
+                            },
+
+                            body: JSON.stringify({
+                                full_name: name,
+                                phone: phone,
+                                email: email,
+                                message: message
+                            })
+                        }
+                    );
+
+
+                    formStatus = "success";
+
+                    updateFormMessage();
+
+                    form.reset();
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Помилка відправки:",
+                        error
+                    );
+
+                    formStatus = "error";
+
+                    updateFormMessage();
+
+                }
+
+
+                if (submitButton) {
+                    submitButton.disabled = false;
+                }
 
             }
         );
 
-    });
+    }
 
 
-/* =========================================================
-   FORM SUBMIT
-========================================================= */
+    setLanguage(currentLanguage);
 
-if (form) {
-
-    form.addEventListener(
-        "submit",
-        async event => {
-
-            event.preventDefault();
-
-            const name =
-                document
-                    .getElementById("name")
-                    ?.value
-                    .trim() || "";
-
-            const phone =
-                document
-                    .getElementById("phone")
-                    ?.value
-                    .trim() || "";
-
-            const email =
-                document
-                    .getElementById("email")
-                    ?.value
-                    .trim() || "";
-
-            const message =
-                document
-                    .getElementById("message")
-                    ?.value
-                    .trim() || "";
-
-
-            if (!name || !phone) {
-
-                formStatus =
-                    "error";
-
-                updateFormMessage();
-
-                return;
-            }
-
-
-            formStatus =
-                "sending";
-
-            updateFormMessage();
-
-
-            if (submitButton) {
-                submitButton.disabled =
-                    true;
-            }
-
-
-            try {
-
-                await fetch(
-                    GOOGLE_SCRIPT_URL,
-                    {
-                        method: "POST",
-
-                        headers: {
-                            "Content-Type":
-                                "text/plain;charset=utf-8"
-                        },
-
-                        body: JSON.stringify({
-
-                            full_name:
-                                name,
-
-                            phone:
-                                phone,
-
-                            email:
-                                email,
-
-                            message:
-                                message
-
-                        })
-                    }
-                );
-
-
-                formStatus =
-                    "success";
-
-                updateFormMessage();
-
-                form.reset();
-
-
-            } catch (error) {
-
-                console.error(
-                    "Помилка відправки:",
-                    error
-                );
-
-                formStatus =
-                    "error";
-
-                updateFormMessage();
-
-            }
-
-
-            if (submitButton) {
-                submitButton.disabled =
-                    false;
-            }
-
-        }
-    );
-}
-
-
-/* =========================================================
-   START
-========================================================= */
-
-setLanguage(
-    currentLanguage
-);
-```
+});
