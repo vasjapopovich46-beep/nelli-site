@@ -6,14 +6,6 @@
 
 
 /* =========================================================
-   GOOGLE APPS SCRIPT
-========================================================= */
-
-const GOOGLE_SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbxmJELRpugwDjDo_MOlppUq1VZrt1101d_E68XOTUTpUOkVVvlwmLOZA-zilNhRoxc3/exec";
-
-
-/* =========================================================
    TRANSLATIONS
 ========================================================= */
 
@@ -502,6 +494,10 @@ const submitButton =
 let formStatus = "";
 
 
+/* =========================================================
+   FORM MESSAGE
+========================================================= */
+
 function updateFormMessage() {
 
     const translation =
@@ -557,29 +553,38 @@ if (form) {
             event.preventDefault();
 
 
+            const nameElement =
+                document.getElementById("name");
+
+            const phoneElement =
+                document.getElementById("phone");
+
+            const emailElement =
+                document.getElementById("email");
+
+            const messageElement =
+                document.getElementById("message");
+
+
             const name =
-                document
-                    .getElementById("name")
-                    .value
-                    .trim();
+                nameElement
+                    ? nameElement.value.trim()
+                    : "";
 
             const phone =
-                document
-                    .getElementById("phone")
-                    .value
-                    .trim();
+                phoneElement
+                    ? phoneElement.value.trim()
+                    : "";
 
             const email =
-                document
-                    .getElementById("email")
-                    .value
-                    .trim();
+                emailElement
+                    ? emailElement.value.trim()
+                    : "";
 
             const message =
-                document
-                    .getElementById("message")
-                    .value
-                    .trim();
+                messageElement
+                    ? messageElement.value.trim()
+                    : "";
 
 
             if (!name || !phone) {
