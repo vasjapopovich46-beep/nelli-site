@@ -12,6 +12,7 @@ form.addEventListener(
 
         event.preventDefault();
 
+
         const name =
             document
                 .getElementById("name")
@@ -56,29 +57,38 @@ form.addEventListener(
 
         try {
 
-            await fetch(
-                GOOGLE_SCRIPT_URL,
-                {
-                    method: "POST",
+            const response =
+                await fetch(
+                    GOOGLE_SCRIPT_URL,
+                    {
+                        method: "POST",
 
-                    headers: {
-                        "Content-Type":
-                            "text/plain;charset=utf-8"
-                    },
+                        headers: {
+                            "Content-Type":
+                                "text/plain;charset=utf-8"
+                        },
 
-                    body: JSON.stringify({
+                        body: JSON.stringify({
 
-                        full_name: name,
+                            full_name: name,
 
-                        phone: phone,
+                            phone: phone,
 
-                        email: email,
+                            email: email,
 
-                        message: message
+                            message: message
 
-                    })
-                }
-            );
+                        })
+                    }
+                );
+
+
+            if (!response.ok) {
+                throw new Error(
+                    "Помилка сервера: " +
+                    response.status
+                );
+            }
 
 
             formStatus = "success";
