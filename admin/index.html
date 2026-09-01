@@ -1,1 +1,442 @@
+<!DOCTYPE html>
+<html lang="uk">
 
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Nelli Photography — Admin</title>
+
+    <link rel="stylesheet" href="admin.css">
+
+</head>
+
+<body>
+
+<div id="loginScreen" class="login-screen">
+
+    <div class="login-box">
+
+        <div class="login-brand">
+            NELLI
+        </div>
+
+        <div class="login-subtitle">
+            PHOTOGRAPHY · PRIVATE ADMIN
+        </div>
+
+        <div class="login-line"></div>
+
+        <h1>
+            Вхід
+        </h1>
+
+        <p>
+            Введіть ключ адміністратора.
+        </p>
+
+        <input
+            id="adminToken"
+            type="password"
+            placeholder="Ключ адміністратора"
+            autocomplete="off"
+        >
+
+        <button
+            id="loginButton"
+            class="gold-button"
+            type="button"
+        >
+            Увійти
+        </button>
+
+        <div
+            id="loginMessage"
+            class="message"
+        ></div>
+
+    </div>
+
+</div>
+
+
+<div
+    id="app"
+    class="app hidden"
+>
+
+    <header class="admin-header">
+
+        <div>
+
+            <div class="brand">
+                NELLI PHOTOGRAPHY
+            </div>
+
+            <div class="brand-sub">
+                CONTENT ADMINISTRATION
+            </div>
+
+        </div>
+
+
+        <div class="header-actions">
+
+            <span
+                id="globalMessage"
+                class="message"
+            ></span>
+
+            <button
+                id="logoutButton"
+                class="outline-button"
+                type="button"
+            >
+                Вийти
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <main class="admin-main">
+
+        <div class="page-top">
+
+            <div>
+
+                <div class="eyebrow">
+                    CONTENT MANAGER
+                </div>
+
+                <h1>
+                    Фотосесії
+                </h1>
+
+            </div>
+
+
+            <button
+                id="newSessionButton"
+                class="gold-button"
+                type="button"
+            >
+                + Нова фотосесія
+            </button>
+
+        </div>
+
+
+        <div class="admin-layout">
+
+
+            <aside class="sessions-panel">
+
+                <div class="panel-title">
+                    Список фотосесій
+                </div>
+
+                <div id="sessionsList">
+                    Завантаження...
+                </div>
+
+            </aside>
+
+
+            <section class="editor-panel">
+
+                <div class="panel-title">
+                    Редактор
+                </div>
+
+
+                <form id="sessionForm">
+
+                    <input
+                        id="sessionId"
+                        type="hidden"
+                    >
+
+
+                    <div class="two-columns">
+
+                        <div class="field">
+
+                            <label for="category">
+                                Категорія
+                            </label>
+
+                            <input
+                                id="category"
+                                type="text"
+                                placeholder="wedding"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label for="slug">
+                                Slug
+                            </label>
+
+                            <input
+                                id="slug"
+                                type="text"
+                                placeholder="wedding"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="divider-title">
+                        Назви
+                    </div>
+
+
+                    <div class="two-columns">
+
+                        <div class="field">
+
+                            <label for="titleUk">
+                                Українська
+                            </label>
+
+                            <input
+                                id="titleUk"
+                                type="text"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label for="titleRu">
+                                Російська
+                            </label>
+
+                            <input
+                                id="titleRu"
+                                type="text"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label for="titleEn">
+                                English
+                            </label>
+
+                            <input
+                                id="titleEn"
+                                type="text"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label for="titleCz">
+                                Čeština
+                            </label>
+
+                            <input
+                                id="titleCz"
+                                type="text"
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="divider-title">
+                        Описи
+                    </div>
+
+
+                    <div class="field">
+
+                        <label for="descriptionUk">
+                            Українська
+                        </label>
+
+                        <textarea
+                            id="descriptionUk"
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label for="descriptionRu">
+                            Російська
+                        </label>
+
+                        <textarea
+                            id="descriptionRu"
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label for="descriptionEn">
+                            English
+                        </label>
+
+                        <textarea
+                            id="descriptionEn"
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label for="descriptionCz">
+                            Čeština
+                        </label>
+
+                        <textarea
+                            id="descriptionCz"
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="two-columns">
+
+                        <div class="field">
+
+                            <label for="order">
+                                Порядок
+                            </label>
+
+                            <input
+                                id="order"
+                                type="number"
+                                min="0"
+                                value="1"
+                            >
+
+                        </div>
+
+
+                        <div class="field">
+
+                            <label for="active">
+                                Показувати на сайті
+                            </label>
+
+                            <select id="active">
+
+                                <option value="true">
+                                    Так
+                                </option>
+
+                                <option value="false">
+                                    Ні
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="editor-actions">
+
+                        <button
+                            class="gold-button"
+                            type="submit"
+                        >
+                            Зберегти
+                        </button>
+
+
+                        <button
+                            id="deleteSessionButton"
+                            class="danger-button"
+                            type="button"
+                        >
+                            Видалити
+                        </button>
+
+                    </div>
+
+                </form>
+
+
+                <div class="photos-section">
+
+                    <div class="divider-title">
+                        Фотографії
+                    </div>
+
+
+                    <div class="upload-box">
+
+                        <div class="upload-copy">
+
+                            <strong>
+                                Додати фотографії
+                            </strong>
+
+                            <span>
+                                JPG, PNG, WEBP · до 8 MB кожне
+                            </span>
+
+                        </div>
+
+
+                        <input
+                            id="photoInput"
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            multiple
+                        >
+
+                    </div>
+
+
+                    <div
+                        id="photosList"
+                        class="photos-list"
+                    >
+                        Виберіть фотосесію.
+                    </div>
+
+                </div>
+
+
+            </section>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<script src="admin.js"></script>
+
+</body>
+
+</html>
