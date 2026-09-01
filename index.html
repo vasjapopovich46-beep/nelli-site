@@ -1,48 +1,42 @@
 <!DOCTYPE html>
-
 <html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-```
-<meta name="description" content="Nelli Photography — фотографія про людей, почуття та моменти.">
-<meta name="theme-color" content="#090909">
+    <meta
+        name="description"
+        content="Nelli Photography — фотографія про людей, почуття та моменти."
+    >
 
-<title>Nelli Photography</title>
+    <title>Nelli Photography</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap"
+        rel="stylesheet"
+    >
 
-<link rel="stylesheet" href="style.css">
-```
-
+    <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<header>
+<header class="header">
     <div class="nav">
 
-```
-    <a href="#home" class="logo">
-        <div class="logo-mark">N</div>
-
-        <div>
-            <div class="logo-name">NELLI</div>
+        <a href="#home" class="logo">
+            <span class="logo-main">NELLI</span>
             <span class="logo-sub">PHOTOGRAPHY</span>
-        </div>
-    </a>
-
-    <div class="nav-right">
+        </a>
 
         <nav class="nav-links">
-            <a href="#about" data-t="aboutNav"></a>
-            <a href="#portfolio" data-t="portfolioNav"></a>
-            <a href="#services" data-t="servicesNav"></a>
-            <a href="#contact" data-t="contactNav"></a>
+            <a href="#about" data-t="aboutNav">Про мене</a>
+            <a href="#portfolio" data-t="portfolioNav">Портфоліо</a>
+            <a href="#services" data-t="servicesNav">Послуги</a>
+            <a href="#contact" data-t="contactNav">Контакти</a>
         </nav>
 
         <div class="languages">
@@ -53,348 +47,449 @@
         </div>
 
     </div>
-
-</div>
-```
-
 </header>
 
-<section class="hero" id="home">
 
-```
-<div class="hero-inner">
+<main>
 
-    <div class="eyebrow" data-t="heroEyebrow"></div>
+    <!-- HERO -->
 
-    <h1>
-        <span data-t="hero1"></span>
-        <br>
-        <span data-t="hero2"></span>
-    </h1>
+    <section class="hero" id="home">
 
-    <p class="hero-text" data-t="heroText"></p>
+        <div class="hero-overlay"></div>
 
-    <a href="#contact" class="button" data-t="heroButton"></a>
+        <div class="hero-content">
 
-</div>
-```
+            <div class="eyebrow" data-t="heroEyebrow">
+                ФОТОГРАФІЯ · ПРАГА · ЄВРОПА
+            </div>
 
-</section>
+            <h1>
+                <span data-t="hero1">ТВОЯ</span>
+                <span data-t="hero2">ІСТОРІЯ</span>
+            </h1>
 
-<section class="about" id="about">
+            <p data-t="heroText">
+                Фотографія про людей, почуття та моменти,
+                які хочеться залишити з собою назавжди.
+            </p>
 
-```
-<div class="container">
+            <a
+                href="#contact"
+                class="hero-button"
+                data-t="heroButton"
+            >
+                Забронювати зйомку
+            </a>
 
-    <div class="about-grid">
-
-        <div class="about-photo photo-placeholder">
-            <div class="placeholder-text">NELLI<br>PHOTOGRAPHY</div>
         </div>
 
-        <div>
+        <div class="hero-bottom">
+            <span>SCROLL</span>
+            <span class="scroll-line"></span>
+        </div>
 
-            <div class="section-title">
+    </section>
 
-                <div class="eyebrow" data-t="aboutEyebrow"></div>
+
+    <!-- ABOUT -->
+
+    <section class="about section" id="about">
+
+        <div class="container">
+
+            <div class="section-label">
+                <span>01</span>
+                <span data-t="aboutEyebrow">ПРО МЕНЕ</span>
+            </div>
+
+            <div class="about-grid">
+
+                <div class="about-image image-placeholder">
+                    <div class="placeholder-inner">
+                        <span>NELLI</span>
+                        <small>PHOTOGRAPHY</small>
+                    </div>
+                </div>
+
+                <div class="about-content">
+
+                    <h2>
+                        <span data-t="aboutTitle1">ПРИВІТ,</span>
+                        <span data-t="aboutTitle2">Я НЕЛЛІ.</span>
+                    </h2>
+
+                    <div class="about-copy">
+
+                        <p data-t="aboutText1">
+                            Я фотографую людей такими, якими вони є —
+                            справжніми, живими та різними.
+                        </p>
+
+                        <p data-t="aboutText2">
+                            Для мене фотографія — це не просто світло
+                            та композиція. Це почуття, яке повертає
+                            вас у конкретний момент.
+                        </p>
+
+                        <p data-t="aboutText3">
+                            На моїх зйомках не потрібно вміти позувати.
+                            Я допоможу вам розслабитися і бути собою.
+                        </p>
+
+                    </div>
+
+                    <div class="signature">Nelli</div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- PORTFOLIO -->
+
+    <section class="portfolio section" id="portfolio">
+
+        <div class="container">
+
+            <div class="section-heading">
+
+                <div class="section-label">
+                    <span>02</span>
+                    <span data-t="portfolioEyebrow">
+                        ВИБРАНІ РОБОТИ
+                    </span>
+                </div>
 
                 <h2>
-                    <span data-t="aboutTitle1"></span>
-                    <br>
-                    <span data-t="aboutTitle2"></span>
+                    <span data-t="portfolioTitle1">МОЇ</span>
+                    <span data-t="portfolioTitle2">РОБОТИ</span>
                 </h2>
 
             </div>
 
-            <p class="about-text" data-t="aboutText1"></p>
-            <p class="about-text" data-t="aboutText2"></p>
-            <p class="about-text" data-t="aboutText3"></p>
 
-            <div class="signature">Nelli</div>
+            <div class="portfolio-grid">
+
+                <article class="portfolio-item portfolio-large">
+                    <div class="portfolio-placeholder">
+                        <span>01</span>
+                    </div>
+
+                    <div class="portfolio-info">
+                        <span data-t="wedding">Весілля</span>
+                        <strong data-t="weddingWork">Цей день</strong>
+                    </div>
+                </article>
+
+
+                <article class="portfolio-item portfolio-tall">
+                    <div class="portfolio-placeholder">
+                        <span>02</span>
+                    </div>
+
+                    <div class="portfolio-info">
+                        <span data-t="love">Історія кохання</span>
+                        <strong data-t="loveWork">Тільки ми</strong>
+                    </div>
+                </article>
+
+
+                <article class="portfolio-item">
+                    <div class="portfolio-placeholder">
+                        <span>03</span>
+                    </div>
+
+                    <div class="portfolio-info">
+                        <span data-t="portrait">Портрет</span>
+                        <strong data-t="portraitWork">Її історія</strong>
+                    </div>
+                </article>
+
+
+                <article class="portfolio-item">
+                    <div class="portfolio-placeholder">
+                        <span>04</span>
+                    </div>
+
+                    <div class="portfolio-info">
+                        <span data-t="couple">Пара</span>
+                        <strong data-t="coupleWork">Разом</strong>
+                    </div>
+                </article>
+
+
+                <article class="portfolio-item">
+                    <div class="portfolio-placeholder">
+                        <span>05</span>
+                    </div>
+
+                    <div class="portfolio-info">
+                        <span data-t="portrait">Портрет</span>
+                        <strong data-t="youWork">Ти</strong>
+                    </div>
+                </article>
+
+            </div>
 
         </div>
 
-    </div>
-
-</div>
-```
-
-</section>
-
-<section class="portfolio" id="portfolio">
-
-```
-<div class="container">
-
-    <div class="section-title">
-
-        <div class="eyebrow" data-t="portfolioEyebrow"></div>
-
-        <h2>
-            <span data-t="portfolioTitle1"></span>
-            <br>
-            <span data-t="portfolioTitle2"></span>
-        </h2>
-
-    </div>
+    </section>
 
 
-    <div class="portfolio-grid">
+    <!-- SERVICES -->
 
-        <div class="work big">
-            <div class="photo-placeholder">
-                <div class="placeholder-text">01</div>
-            </div>
+    <section class="services section" id="services">
 
-            <div class="work-info">
-                <small data-t="wedding"></small>
-                <strong data-t="weddingWork"></strong>
-            </div>
-        </div>
+        <div class="container">
 
+            <div class="section-heading">
 
-        <div class="work tall">
-            <div class="photo-placeholder">
-                <div class="placeholder-text">02</div>
-            </div>
-
-            <div class="work-info">
-                <small data-t="love"></small>
-                <strong data-t="loveWork"></strong>
-            </div>
-        </div>
-
-
-        <div class="work">
-            <div class="photo-placeholder">
-                <div class="placeholder-text">03</div>
-            </div>
-
-            <div class="work-info">
-                <small data-t="portrait"></small>
-                <strong data-t="portraitWork"></strong>
-            </div>
-        </div>
-
-
-        <div class="work">
-            <div class="photo-placeholder">
-                <div class="placeholder-text">04</div>
-            </div>
-
-            <div class="work-info">
-                <small data-t="couple"></small>
-                <strong data-t="coupleWork"></strong>
-            </div>
-        </div>
-
-
-        <div class="work">
-            <div class="photo-placeholder">
-                <div class="placeholder-text">05</div>
-            </div>
-
-            <div class="work-info">
-                <small data-t="portrait"></small>
-                <strong data-t="youWork"></strong>
-            </div>
-        </div>
-
-    </div>
-
-</div>
-```
-
-</section>
-
-<section class="services" id="services">
-
-```
-<div class="container">
-
-    <div class="section-title">
-
-        <div class="eyebrow" data-t="servicesEyebrow"></div>
-
-        <h2>
-            <span data-t="servicesTitle1"></span>
-            <br>
-            <span data-t="servicesTitle2"></span>
-        </h2>
-
-    </div>
-
-
-    <div class="services-grid">
-
-        <div class="service">
-            <div class="service-number">01</div>
-            <h3 data-t="portraitTitle"></h3>
-            <p data-t="portraitText"></p>
-        </div>
-
-        <div class="service">
-            <div class="service-number">02</div>
-            <h3 data-t="loveTitle"></h3>
-            <p data-t="loveText"></p>
-        </div>
-
-        <div class="service">
-            <div class="service-number">03</div>
-            <h3 data-t="weddingTitle"></h3>
-            <p data-t="weddingText"></p>
-        </div>
-
-    </div>
-
-</div>
-```
-
-</section>
-
-<section class="contact" id="contact">
-
-```
-<div class="container">
-
-    <div class="contact-grid">
-
-        <div>
-
-            <div class="section-title">
-
-                <div class="eyebrow" data-t="contactEyebrow"></div>
+                <div class="section-label">
+                    <span>03</span>
+                    <span data-t="servicesEyebrow">ПОСЛУГИ</span>
+                </div>
 
                 <h2>
-                    <span data-t="contactTitle1"></span>
-                    <br>
-                    <span data-t="contactTitle2"></span>
+                    <span data-t="servicesTitle1">ЩО Я</span>
+                    <span data-t="servicesTitle2">РОБЛЮ</span>
                 </h2>
 
             </div>
 
-            <p class="contact-text" data-t="contactText"></p>
 
-            <div class="contact-links">
+            <div class="services-list">
 
-                <a href="mailto:nelli@example.com">
-                    nelli@example.com
-                </a>
+                <article class="service">
+                    <div class="service-number">01</div>
 
-                <a href="tel:+420000000000">
-                    +420 000 000 000
-                </a>
+                    <div class="service-main">
+                        <h3 data-t="portraitTitle">Портрет</h3>
+                        <p data-t="portraitText">
+                            Індивідуальні портрети, особистий бренд
+                            та зйомки для себе.
+                        </p>
+                    </div>
 
-                <a href="#">
-                    Instagram · @nelli.photography
-                </a>
+                    <span class="service-arrow">↗</span>
+                </article>
+
+
+                <article class="service">
+                    <div class="service-number">02</div>
+
+                    <div class="service-main">
+                        <h3 data-t="loveTitle">Історія кохання</h3>
+                        <p data-t="loveText">
+                            Щирі історії двох людей —
+                            прогулянки, побачення та особливі моменти.
+                        </p>
+                    </div>
+
+                    <span class="service-arrow">↗</span>
+                </article>
+
+
+                <article class="service">
+                    <div class="service-number">03</div>
+
+                    <div class="service-main">
+                        <h3 data-t="weddingTitle">Весілля</h3>
+                        <p data-t="weddingText">
+                            Повний день або окремі частини весілля —
+                            від деталей до справжніх емоцій.
+                        </p>
+                    </div>
+
+                    <span class="service-arrow">↗</span>
+                </article>
 
             </div>
 
         </div>
 
+    </section>
 
-        <div>
 
-            <form class="booking" id="bookingForm">
+    <!-- CONTACT -->
 
-                <div class="form-grid">
+    <section class="contact section" id="contact">
 
-                    <div class="field">
+        <div class="container">
 
-                        <label for="name" data-t="nameLabel"></label>
+            <div class="contact-grid">
 
-                        <input
-                            id="name"
-                            type="text"
-                            required
-                            autocomplete="name"
-                            data-placeholder="name"
-                        >
+                <div class="contact-intro">
+
+                    <div class="section-label">
+                        <span>04</span>
+                        <span data-t="contactEyebrow">
+                            КОНТАКТИ
+                        </span>
+                    </div>
+
+                    <h2>
+                        <span data-t="contactTitle1">ДАВАЙТЕ</span>
+                        <span data-t="contactTitle2">СТВОРЮВАТИ</span>
+                    </h2>
+
+                    <p data-t="contactText">
+                        Розкажіть мені про вашу ідею.
+                        Я особисто зв'яжуся з вами.
+                    </p>
+
+                    <div class="contact-details">
+                        <a href="mailto:nelli@example.com">
+                            nelli@example.com
+                        </a>
+
+                        <a href="tel:+420000000000">
+                            +420 000 000 000
+                        </a>
+                    </div>
+
+                </div>
+
+
+                <form
+                    class="booking-form"
+                    id="bookingForm"
+                >
+
+                    <div class="form-row">
+
+                        <div class="field">
+                            <label
+                                for="name"
+                                data-t="nameLabel"
+                            >
+                                Ім'я та прізвище
+                            </label>
+
+                            <input
+                                id="name"
+                                name="name"
+                                type="text"
+                                required
+                                autocomplete="name"
+                                data-placeholder="name"
+                                placeholder="Ваше ім'я"
+                            >
+                        </div>
+
+
+                        <div class="field">
+                            <label
+                                for="phone"
+                                data-t="phoneLabel"
+                            >
+                                Телефон
+                            </label>
+
+                            <input
+                                id="phone"
+                                name="phone"
+                                type="tel"
+                                required
+                                autocomplete="tel"
+                                data-placeholder="phone"
+                                placeholder="+420..."
+                            >
+                        </div>
 
                     </div>
 
 
                     <div class="field">
-
-                        <label for="phone" data-t="phoneLabel"></label>
-
-                        <input
-                            id="phone"
-                            type="tel"
-                            required
-                            autocomplete="tel"
-                            data-placeholder="phone"
+                        <label
+                            for="email"
+                            data-t="emailLabel"
                         >
-
-                    </div>
-
-
-                    <div class="field full">
-
-                        <label for="email" data-t="emailLabel"></label>
+                            Електронна пошта
+                        </label>
 
                         <input
                             id="email"
+                            name="email"
                             type="email"
                             autocomplete="email"
                             data-placeholder="email"
+                            placeholder="email@example.com"
                         >
-
                     </div>
 
 
-                    <div class="field full">
-
-                        <label for="message" data-t="messageLabel"></label>
+                    <div class="field">
+                        <label
+                            for="message"
+                            data-t="messageLabel"
+                        >
+                            Повідомлення
+                        </label>
 
                         <textarea
                             id="message"
+                            name="message"
+                            rows="5"
                             data-placeholder="message"
+                            placeholder="Розкажіть про вашу зйомку..."
                         ></textarea>
+                    </div>
+
+
+                    <div class="form-footer">
+
+                        <div
+                            id="formMessage"
+                            class="form-message"
+                            aria-live="polite"
+                        ></div>
+
+                        <button
+                            type="submit"
+                            id="submitButton"
+                            class="submit-button"
+                            data-t="submit"
+                        >
+                            Надіслати заявку
+                        </button>
 
                     </div>
 
-                </div>
+                </form>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
 
 
-                <div class="form-bottom">
+<footer class="footer">
 
-                    <div id="formMessage" aria-live="polite"></div>
+    <div class="footer-inner">
 
-                    <button
-                        class="submit"
-                        id="submitButton"
-                        type="submit"
-                        data-t="submit"
-                    ></button>
+        <div class="footer-brand">
+            NELLI
+        </div>
 
-                </div>
-
-            </form>
-
+        <div
+            class="footer-copy"
+            data-t="footer"
+        >
+            © 2026 Nelli Photography
         </div>
 
     </div>
 
-</div>
-```
-
-</section>
-
-<footer>
-
-```
-<div class="footer">
-
-    <div class="footer-name">NELLI</div>
-
-    <div class="footer-copy" data-t="footer"></div>
-
-</div>
-```
-
 </footer>
+
 
 <script src="script.js"></script>
 
