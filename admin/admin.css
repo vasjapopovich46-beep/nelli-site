@@ -17,18 +17,15 @@
     --sans: "Montserrat", Arial, sans-serif;
 }
 
-
 * {
     box-sizing: border-box;
 }
-
 
 html,
 body {
     margin: 0;
     min-height: 100%;
 }
-
 
 body {
     background:
@@ -47,10 +44,8 @@ body {
     color: var(--text);
 
     font-family: var(--sans);
-
     font-weight: 300;
 }
-
 
 button,
 input,
@@ -59,11 +54,9 @@ select {
     font: inherit;
 }
 
-
 button {
     cursor: pointer;
 }
-
 
 .hidden {
     display: none !important;
@@ -84,7 +77,6 @@ button {
     padding: 25px;
 }
 
-
 .login-box {
     width: min(430px, 100%);
 
@@ -103,7 +95,6 @@ button {
         0 40px 120px rgba(0,0,0,.5);
 }
 
-
 .login-brand {
     color: var(--gold);
 
@@ -116,7 +107,6 @@ button {
     line-height: 1;
 }
 
-
 .login-subtitle {
     margin-top: 8px;
 
@@ -127,7 +117,6 @@ button {
     letter-spacing: 4px;
 }
 
-
 .login-line {
     width: 50px;
 
@@ -137,7 +126,6 @@ button {
 
     background: var(--gold);
 }
-
 
 .login-box h1 {
     margin: 0 0 12px;
@@ -151,7 +139,6 @@ button {
     line-height: .9;
 }
 
-
 .login-box p {
     margin: 0 0 28px;
 
@@ -161,7 +148,6 @@ button {
 
     line-height: 1.8;
 }
-
 
 .login-box input {
     margin-bottom: 14px;
@@ -197,7 +183,6 @@ button {
     backdrop-filter: blur(16px);
 }
 
-
 .brand {
     color: var(--gold);
 
@@ -208,7 +193,6 @@ button {
     letter-spacing: 4px;
 }
 
-
 .brand-sub {
     margin-top: 3px;
 
@@ -218,7 +202,6 @@ button {
 
     letter-spacing: 3px;
 }
-
 
 .header-actions {
     display: flex;
@@ -243,7 +226,6 @@ button {
     padding: 70px 0 100px;
 }
 
-
 .page-top {
     margin-bottom: 50px;
 
@@ -253,7 +235,6 @@ button {
 
     gap: 30px;
 }
-
 
 .eyebrow {
     color: var(--gold);
@@ -266,7 +247,6 @@ button {
 
     text-transform: uppercase;
 }
-
 
 .page-top h1 {
     margin: 14px 0 0;
@@ -302,7 +282,6 @@ button {
     align-items: start;
 }
 
-
 .sessions-panel,
 .editor-panel {
     border: 1px solid var(--line);
@@ -310,7 +289,6 @@ button {
     background:
         rgba(255,255,255,.012);
 }
-
 
 .sessions-panel {
     position: sticky;
@@ -320,11 +298,9 @@ button {
     padding: 24px;
 }
 
-
 .editor-panel {
     padding: 38px;
 }
-
 
 .panel-title,
 .divider-title {
@@ -339,11 +315,9 @@ button {
     text-transform: uppercase;
 }
 
-
 .panel-title {
     margin-bottom: 20px;
 }
-
 
 .divider-title {
     padding-top: 24px;
@@ -376,14 +350,12 @@ button {
         border-color .35s ease;
 }
 
-
 .session-card:hover {
     transform: translateX(4px);
 
     border-color:
         rgba(198,161,91,.4);
 }
-
 
 .session-card.active {
     border-color: var(--gold);
@@ -396,7 +368,6 @@ button {
         );
 }
 
-
 .session-title {
     font-family: var(--serif);
 
@@ -404,7 +375,6 @@ button {
 
     line-height: 1.05;
 }
-
 
 .session-meta {
     margin-top: 8px;
@@ -431,11 +401,9 @@ button {
     gap: 20px;
 }
 
-
 .field {
     margin-bottom: 23px;
 }
-
 
 .field label {
     display: block;
@@ -450,7 +418,6 @@ button {
 
     text-transform: uppercase;
 }
-
 
 input,
 textarea,
@@ -473,7 +440,6 @@ select {
         box-shadow .3s ease;
 }
 
-
 input:focus,
 textarea:focus,
 select:focus {
@@ -483,7 +449,6 @@ select:focus {
         0 0 0 3px
         rgba(198,161,91,.05);
 }
-
 
 textarea {
     min-height: 100px;
@@ -524,13 +489,11 @@ textarea {
         transform .35s ease;
 }
 
-
 .gold-button {
     border-color: var(--gold);
 
     color: var(--gold);
 }
-
 
 .gold-button:hover {
     background: var(--gold);
@@ -540,20 +503,17 @@ textarea {
     transform: translateY(-2px);
 }
 
-
 .outline-button {
     border-color: #303030;
 
     color: #999;
 }
 
-
 .outline-button:hover {
     border-color: var(--gold);
 
     color: var(--gold);
 }
-
 
 .danger-button {
     border-color:
@@ -562,13 +522,11 @@ textarea {
     color: var(--danger);
 }
 
-
 .danger-button:hover {
     background: var(--danger);
 
     color: #080808;
 }
-
 
 .editor-actions {
     display: flex;
@@ -587,7 +545,6 @@ textarea {
     margin-top: 55px;
 }
 
-
 .upload-box {
     display: flex;
 
@@ -605,7 +562,6 @@ textarea {
         rgba(198,161,91,.025);
 }
 
-
 .upload-copy {
     display: flex;
 
@@ -613,7 +569,6 @@ textarea {
 
     gap: 6px;
 }
-
 
 .upload-copy strong {
     font-family: var(--serif);
@@ -623,7 +578,6 @@ textarea {
     font-weight: 400;
 }
 
-
 .upload-copy span {
     color: #666;
 
@@ -631,7 +585,6 @@ textarea {
 
     letter-spacing: 1px;
 }
-
 
 #photoInput {
     width: min(
@@ -665,7 +618,6 @@ textarea {
     margin-top: 25px;
 }
 
-
 .photo-card {
     overflow: hidden;
 
@@ -674,7 +626,6 @@ textarea {
 
     background: #090909;
 }
-
 
 .photo-preview {
     position: relative;
@@ -685,7 +636,6 @@ textarea {
 
     background: #151515;
 }
-
 
 .photo-preview img {
     width: 100%;
@@ -698,12 +648,10 @@ textarea {
         cubic-bezier(.16,1,.3,1);
 }
 
-
 .photo-card:hover
 .photo-preview img {
     transform: scale(1.04);
 }
-
 
 .cover-badge {
     position: absolute;
@@ -726,11 +674,9 @@ textarea {
     text-transform: uppercase;
 }
 
-
 .photo-body {
     padding: 15px;
 }
-
 
 .photo-name {
     overflow: hidden;
@@ -744,7 +690,6 @@ textarea {
     text-overflow: ellipsis;
 }
 
-
 .photo-actions {
     display: flex;
 
@@ -752,7 +697,6 @@ textarea {
 
     margin-top: 12px;
 }
-
 
 .photo-actions button {
     min-height: 34px;
@@ -775,7 +719,6 @@ textarea {
         border-color .3s ease,
         color .3s ease;
 }
-
 
 .photo-actions button:hover {
     border-color: var(--gold);
@@ -807,16 +750,13 @@ textarea {
     width: 6px;
 }
 
-
 ::-webkit-scrollbar-track {
     background: #060606;
 }
 
-
 ::-webkit-scrollbar-thumb {
     background: #2b2b2b;
 }
-
 
 ::-webkit-scrollbar-thumb:hover {
     background: var(--gold);
@@ -835,33 +775,27 @@ textarea {
         padding-top: 40px;
     }
 
-
     .admin-layout {
         grid-template-columns: 1fr;
     }
-
 
     .sessions-panel {
         position: static;
     }
 
-
     .two-columns {
         grid-template-columns: 1fr;
     }
 
-
     .photos-list {
         grid-template-columns: 1fr;
     }
-
 
     .upload-box {
         align-items: stretch;
 
         flex-direction: column;
     }
-
 
     #photoInput {
         width: 100%;
@@ -876,31 +810,25 @@ textarea {
         padding: 16px 15px;
     }
 
-
     .brand {
         font-size: 14px;
     }
-
 
     .brand-sub {
         font-size: 6px;
     }
 
-
     .header-actions {
         gap: 8px;
     }
-
 
     .header-actions .message {
         display: none;
     }
 
-
     .editor-panel {
         padding: 24px 17px;
     }
-
 
     .page-top {
         align-items: stretch;
@@ -908,22 +836,18 @@ textarea {
         flex-direction: column;
     }
 
-
     .page-top
     .gold-button {
         width: 100%;
     }
 
-
     .login-box {
         padding: 38px 25px;
     }
 
-
     .login-box h1 {
         font-size: 48px;
     }
-
 
     .session-title {
         font-size: 21px;
