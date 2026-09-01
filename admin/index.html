@@ -1,442 +1,1799 @@
-<!DOCTYPE html>
-<html lang="uk">
+const SPREADSHEET_ID =
+  "1WBApGw967uToPhYCcIxqgbxDOYffR8oq3U4mng4xHw4";
 
-<head>
+const REQUESTS_SHEET = "Заявки";
+const SESSIONS_SHEET = "Сесії";
+const PHOTOS_SHEET = "Фото";
 
-    <meta charset="UTF-8">
+const ADMIN_TOKEN = "Admin Nelli";
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
 
-    <title>Nelli Photography — Admin</title>
+/* =========================================================
+   GET
+========================================================= */
 
-    <link rel="stylesheet" href="admin.css">
+function doGet(e) {
 
-</head>
+  try {
 
-<body>
+    const params =
+      e && e.parameter
+        ? e.parameter
+        : {};
 
-<div id="loginScreen" class="login-screen">
 
-    <div class="login-box">
+    /* -------------------------
+       PUBLIC CONTENT
+    ------------------------- */
 
-        <div class="login-brand">
-            NELLI
-        </div>
+    if (
+      params.action === "content"
+    ) {
 
-        <div class="login-subtitle">
-            PHOTOGRAPHY · PRIVATE ADMIN
-        </div>
+      return jsonResponse(
+        getPublicContent()
+      );
 
-        <div class="login-line"></div>
+    }
 
-        <h1>
-            Вхід
-        </h1>
 
-        <p>
-            Введіть ключ адміністратора.
-        </p>
+    /* -------------------------
+       ADMIN DATA
+    ------------------------- */
 
-        <input
-            id="adminToken"
-            type="password"
-            placeholder="Ключ адміністратора"
-            autocomplete="off"
-        >
+    if (
+      params.action === "adminData"
+    ) {
 
-        <button
-            id="loginButton"
-            class="gold-button"
-            type="button"
-        >
-            Увійти
-        </button>
+      if (
+        params.token !== ADMIN_TOKEN
+      ) {
 
-        <div
-            id="loginMessage"
-            class="message"
-        ></div>
+        return adminError(
+          "Невірний ключ адміністратора",
+          params.callback
+        );
 
-    </div>
+      }
 
-</div>
 
+      const data =
+        getAdminData();
 
-<div
-    id="app"
-    class="app hidden"
->
 
-    <header class="admin-header">
+      /*
+       * JSONP потрібен GitHub Pages,
+       * щоб адмінка могла отримати
+       * дані без CORS-помилки.
+       */
 
-        <div>
+      if (
+        params.callback
+      ) {
 
-            <div class="brand">
-                NELLI PHOTOGRAPHY
-            </div>
+        return ContentService
 
-            <div class="brand-sub">
-                CONTENT ADMINISTRATION
-            </div>
+          .createTextOutput(
 
-        </div>
+            params.callback +
+            "(" +
+            JSON.stringify(data) +
+            ");"
 
+          )
 
-        <div class="header-actions">
+          .setMimeType(
+            ContentService.MimeType.JAVASCRIPT
+          );
 
-            <span
-                id="globalMessage"
-                class="message"
-            ></span>
+      }
 
-            <button
-                id="logoutButton"
-                class="outline-button"
-                type="button"
-            >
-                Вийти
-            </button>
 
-        </div>
+      return jsonResponse(
+        data
+      );
 
-    </header>
+    }
 
 
-    <main class="admin-main">
+    /* -------------------------
+       API CHECK
+    ------------------------- */
 
-        <div class="page-top">
+    return ContentService
 
-            <div>
+      .createTextOutput(
+        "NELLI API OK"
+      )
 
-                <div class="eyebrow">
-                    CONTENT MANAGER
-                </div>
+      .setMimeType(
+        ContentService.MimeType.TEXT
+      );
 
-                <h1>
-                    Фотосесії
-                </h1>
 
-            </div>
+  } catch (error) {
 
+    return jsonResponse({
 
-            <button
-                id="newSessionButton"
-                class="gold-button"
-                type="button"
-            >
-                + Нова фотосесія
-            </button>
+      success: false,
 
-        </div>
+      error:
+        error.message
 
+    });
 
-        <div class="admin-layout">
+  }
 
+}
 
-            <aside class="sessions-panel">
 
-                <div class="panel-title">
-                    Список фотосесій
-                </div>
+/* =========================================================
+   POST
+========================================================= */
 
-                <div id="sessionsList">
-                    Завантаження...
-                </div>
+function doPost(e) {
 
-            </aside>
+  try {
 
+    let data = {};
 
-            <section class="editor-panel">
 
-                <div class="panel-title">
-                    Редактор
-                </div>
+    if (
+      e &&
+      e.postData &&
+      e.postData.contents
+    ) {
 
+      data =
+        JSON.parse(
+          e.postData.contents
+        );
 
-                <form id="sessionForm">
+    }
 
-                    <input
-                        id="sessionId"
-                        type="hidden"
-                    >
 
+    /* -------------------------
+       ADMIN REQUEST
+    ------------------------- */
 
-                    <div class="two-columns">
+    if (
+      data.admin === true ||
+      data.type === "admin"
+    ) {
 
-                        <div class="field">
+      if (
+        data.token !== ADMIN_TOKEN
+      ) {
 
-                            <label for="category">
-                                Категорія
-                            </label>
+        return jsonResponse({
 
-                            <input
-                                id="category"
-                                type="text"
-                                placeholder="wedding"
-                            >
+          success: false,
 
-                        </div>
+          error:
+            "Невірний ключ адміністратора"
 
+        });
 
-                        <div class="field">
+      }
 
-                            <label for="slug">
-                                Slug
-                            </label>
 
-                            <input
-                                id="slug"
-                                type="text"
-                                placeholder="wedding"
-                            >
+      return handleAdminPost(
+        data
+      );
 
-                        </div>
+    }
 
-                    </div>
 
+    /* -------------------------
+       WEBSITE REQUEST
+    ------------------------- */
 
-                    <div class="divider-title">
-                        Назви
-                    </div>
+    return saveRequest(
+      data
+    );
 
 
-                    <div class="two-columns">
+  } catch (error) {
 
-                        <div class="field">
+    return jsonResponse({
 
-                            <label for="titleUk">
-                                Українська
-                            </label>
+      success: false,
 
-                            <input
-                                id="titleUk"
-                                type="text"
-                            >
+      error:
+        error.message
 
-                        </div>
+    });
 
+  }
 
-                        <div class="field">
+}
 
-                            <label for="titleRu">
-                                Російська
-                            </label>
 
-                            <input
-                                id="titleRu"
-                                type="text"
-                            >
+/* =========================================================
+   SAVE REQUEST
+========================================================= */
 
-                        </div>
+function saveRequest(data) {
 
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
 
-                        <div class="field">
 
-                            <label for="titleEn">
-                                English
-                            </label>
+  let sheet =
+    ss.getSheetByName(
+      REQUESTS_SHEET
+    );
 
-                            <input
-                                id="titleEn"
-                                type="text"
-                            >
 
-                        </div>
+  if (!sheet) {
 
+    sheet =
+      ss.insertSheet(
+        REQUESTS_SHEET
+      );
 
-                        <div class="field">
+  }
 
-                            <label for="titleCz">
-                                Čeština
-                            </label>
 
-                            <input
-                                id="titleCz"
-                                type="text"
-                            >
+  /*
+   * Забезпечуємо правильні заголовки.
+   */
 
-                        </div>
+  if (
+    sheet.getLastRow() === 0
+  ) {
 
-                    </div>
+    sheet.appendRow([
 
+      "ID",
+      "Дата заявки",
+      "Ім'я",
+      "Телефон",
+      "Email",
+      "Повідомлення",
+      "Статус"
 
-                    <div class="divider-title">
-                        Описи
-                    </div>
+    ]);
 
+    sheet.setFrozenRows(1);
 
-                    <div class="field">
+  } else {
 
-                        <label for="descriptionUk">
-                            Українська
-                        </label>
+    /*
+     * Якщо старий аркуш мав
+     * тільки 6 колонок — додаємо Статус.
+     */
 
-                        <textarea
-                            id="descriptionUk"
-                        ></textarea>
+    const headers =
+      sheet
+        .getRange(
+          1,
+          1,
+          1,
+          Math.max(
+            7,
+            sheet.getLastColumn()
+          )
+        )
+        .getValues()[0];
 
-                    </div>
 
+    if (
+      !headers[6]
+    ) {
 
-                    <div class="field">
+      sheet
+        .getRange(
+          1,
+          7
+        )
+        .setValue(
+          "Статус"
+        );
 
-                        <label for="descriptionRu">
-                            Російська
-                        </label>
+    }
 
-                        <textarea
-                            id="descriptionRu"
-                        ></textarea>
+  }
 
-                    </div>
 
+  const id =
+    Utilities.getUuid();
 
-                    <div class="field">
 
-                        <label for="descriptionEn">
-                            English
-                        </label>
+  sheet.appendRow([
 
-                        <textarea
-                            id="descriptionEn"
-                        ></textarea>
+    id,
 
-                    </div>
+    new Date(),
 
+    data.full_name ||
+      data.name ||
+      "",
 
-                    <div class="field">
+    data.phone ||
+      "",
 
-                        <label for="descriptionCz">
-                            Čeština
-                        </label>
+    data.email ||
+      "",
 
-                        <textarea
-                            id="descriptionCz"
-                        ></textarea>
+    data.message ||
+      "",
 
-                    </div>
+    "Нова заявка"
 
+  ]);
 
-                    <div class="two-columns">
 
-                        <div class="field">
+  const row =
+    sheet.getLastRow();
 
-                            <label for="order">
-                                Порядок
-                            </label>
 
-                            <input
-                                id="order"
-                                type="number"
-                                min="0"
-                                value="1"
-                            >
+  sheet
+    .getRange(
+      row,
+      2
+    )
+    .setNumberFormat(
+      "dd.MM.yyyy HH:mm:ss"
+    );
 
-                        </div>
 
+  SpreadsheetApp.flush();
 
-                        <div class="field">
 
-                            <label for="active">
-                                Показувати на сайті
-                            </label>
+  return jsonResponse({
 
-                            <select id="active">
+    success: true,
 
-                                <option value="true">
-                                    Так
-                                </option>
+    message:
+      "Заявку успішно записано",
 
-                                <option value="false">
-                                    Ні
-                                </option>
+    id:
+      id
 
-                            </select>
+  });
 
-                        </div>
+}
 
-                    </div>
 
+/* =========================================================
+   ADMIN ROUTER
+========================================================= */
 
-                    <div class="editor-actions">
+function handleAdminPost(data) {
 
-                        <button
-                            class="gold-button"
-                            type="submit"
-                        >
-                            Зберегти
-                        </button>
+  const action =
+    String(
+      data.action || ""
+    );
 
 
-                        <button
-                            id="deleteSessionButton"
-                            class="danger-button"
-                            type="button"
-                        >
-                            Видалити
-                        </button>
+  if (
+    action === "saveSession"
+  ) {
 
-                    </div>
+    return jsonResponse(
+      saveSession(
+        data.session
+      )
+    );
 
-                </form>
+  }
 
 
-                <div class="photos-section">
+  if (
+    action === "deleteSession"
+  ) {
 
-                    <div class="divider-title">
-                        Фотографії
-                    </div>
+    return jsonResponse(
+      deleteSession(
+        data.sessionId
+      )
+    );
 
+  }
 
-                    <div class="upload-box">
 
-                        <div class="upload-copy">
+  if (
+    action === "uploadPhoto"
+  ) {
 
-                            <strong>
-                                Додати фотографії
-                            </strong>
+    return jsonResponse(
+      uploadPhoto(
 
-                            <span>
-                                JPG, PNG, WEBP · до 8 MB кожне
-                            </span>
+        data.sessionId,
 
-                        </div>
+        data.fileName,
 
+        data.base64Data,
 
-                        <input
-                            id="photoInput"
-                            type="file"
-                            accept="image/jpeg,image/png,image/webp"
-                            multiple
-                        >
+        data.mimeType
 
-                    </div>
+      )
+    );
 
+  }
 
-                    <div
-                        id="photosList"
-                        class="photos-list"
-                    >
-                        Виберіть фотосесію.
-                    </div>
 
-                </div>
+  if (
+    action === "deletePhoto"
+  ) {
 
+    return jsonResponse(
+      deletePhoto(
+        data.photoId
+      )
+    );
 
-            </section>
+  }
 
-        </div>
 
-    </main>
+  if (
+    action === "setCover"
+  ) {
 
-</div>
+    return jsonResponse(
+      setCover(
 
+        data.sessionId,
 
-<script src="admin.js"></script>
+        data.fileId
 
-</body>
+      )
+    );
 
-</html>
+  }
+
+
+  return jsonResponse({
+
+    success: false,
+
+    error:
+      "Невідома адмінська операція"
+
+  });
+
+}
+
+
+/* =========================================================
+   GET ADMIN DATA
+========================================================= */
+
+function getAdminData() {
+
+  setupContentSheets();
+
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  return {
+
+    success: true,
+
+    sessions:
+      getRowsAsObjects(
+        ss.getSheetByName(
+          SESSIONS_SHEET
+        )
+      ),
+
+    photos:
+      getRowsAsObjects(
+        ss.getSheetByName(
+          PHOTOS_SHEET
+        )
+      )
+
+  };
+
+}
+
+
+/* =========================================================
+   CREATE CONTENT SHEETS
+========================================================= */
+
+function setupContentSheets() {
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  /* -------------------------
+     SESSIONS
+  ------------------------- */
+
+  let sessions =
+    ss.getSheetByName(
+      SESSIONS_SHEET
+    );
+
+
+  if (!sessions) {
+
+    sessions =
+      ss.insertSheet(
+        SESSIONS_SHEET
+      );
+
+
+    sessions.appendRow([
+
+      "ID",
+      "Категорія",
+      "Slug",
+
+      "Назва UA",
+      "Назва RU",
+      "Назва EN",
+      "Назва CZ",
+
+      "Опис UA",
+      "Опис RU",
+      "Опис EN",
+      "Опис CZ",
+
+      "Обкладинка",
+      "Порядок",
+      "Активна"
+
+    ]);
+
+
+    addStarterSessions(
+      sessions
+    );
+
+  }
+
+
+  /* -------------------------
+     PHOTOS
+  ------------------------- */
+
+  let photos =
+    ss.getSheetByName(
+      PHOTOS_SHEET
+    );
+
+
+  if (!photos) {
+
+    photos =
+      ss.insertSheet(
+        PHOTOS_SHEET
+      );
+
+
+    photos.appendRow([
+
+      "ID",
+      "Session ID",
+      "File ID",
+      "Назва",
+      "Порядок",
+      "Активна"
+
+    ]);
+
+  }
+
+
+  sessions.setFrozenRows(1);
+
+  photos.setFrozenRows(1);
+
+}
+
+
+/* =========================================================
+   STARTER SESSIONS
+========================================================= */
+
+function addStarterSessions(
+  sheet
+) {
+
+  sheet.appendRow([
+
+    "wedding",
+    "wedding",
+    "wedding",
+
+    "Весілля",
+    "Свадьба",
+    "Wedding",
+    "Svatba",
+
+    "Історія вашого дня",
+    "История вашего дня",
+    "The story of your day",
+    "Příběh vašeho dne",
+
+    "",
+    1,
+    true
+
+  ]);
+
+
+  sheet.appendRow([
+
+    "love",
+    "love",
+    "love-story",
+
+    "Історія кохання",
+    "История любви",
+    "Love Story",
+    "Příběh lásky",
+
+    "Щирі моменти двох людей",
+    "Искренние моменты двух людей",
+    "Honest moments between two people",
+    "Upřímné okamžiky dvou lidí",
+
+    "",
+    2,
+    true
+
+  ]);
+
+
+  sheet.appendRow([
+
+    "portrait",
+    "portrait",
+    "portrait",
+
+    "Портрет",
+    "Портрет",
+    "Portrait",
+    "Portrét",
+
+    "Портрети з характером",
+    "Портреты с характером",
+    "Portraits with character",
+    "Portréty s charakterem",
+
+    "",
+    3,
+    true
+
+  ]);
+
+
+  sheet.appendRow([
+
+    "couple",
+    "couple",
+    "couple",
+
+    "Пара",
+    "Пара",
+    "Couple",
+    "Pár",
+
+    "Тільки ви двоє",
+    "Только вы двое",
+    "Just the two of you",
+    "Jen vy dva",
+
+    "",
+    4,
+    true
+
+  ]);
+
+}
+
+
+/* =========================================================
+   SAVE SESSION
+========================================================= */
+
+function saveSession(data) {
+
+  setupContentSheets();
+
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sheet =
+    ss.getSheetByName(
+      SESSIONS_SHEET
+    );
+
+
+  const rows =
+    sheet
+      .getDataRange()
+      .getValues();
+
+
+  let id =
+    String(
+      data.id || ""
+    ).trim();
+
+
+  if (!id) {
+
+    id =
+      Utilities.getUuid()
+        .split("-")[0];
+
+  }
+
+
+  let rowNumber =
+    -1;
+
+
+  for (
+    let i = 1;
+    i < rows.length;
+    i++
+  ) {
+
+    if (
+      String(rows[i][0]) === id
+    ) {
+
+      rowNumber =
+        i + 1;
+
+      break;
+
+    }
+
+  }
+
+
+  const values = [
+
+    id,
+
+    data.category ||
+      "other",
+
+    data.slug ||
+      id,
+
+    data.titleUk ||
+      "",
+
+    data.titleRu ||
+      "",
+
+    data.titleEn ||
+      "",
+
+    data.titleCz ||
+      "",
+
+    data.descriptionUk ||
+      "",
+
+    data.descriptionRu ||
+      "",
+
+    data.descriptionEn ||
+      "",
+
+    data.descriptionCz ||
+      "",
+
+    data.cover ||
+      "",
+
+    Number(
+      data.order || 0
+    ),
+
+    data.active !== false
+
+  ];
+
+
+  if (
+    rowNumber === -1
+  ) {
+
+    sheet.appendRow(
+      values
+    );
+
+  } else {
+
+    sheet
+      .getRange(
+        rowNumber,
+        1,
+        1,
+        values.length
+      )
+      .setValues([
+        values
+      ]);
+
+  }
+
+
+  SpreadsheetApp.flush();
+
+
+  return {
+
+    success: true,
+
+    id: id
+
+  };
+
+}
+
+
+/* =========================================================
+   DELETE SESSION
+========================================================= */
+
+function deleteSession(
+  sessionId
+) {
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sessions =
+    ss.getSheetByName(
+      SESSIONS_SHEET
+    );
+
+
+  const photos =
+    ss.getSheetByName(
+      PHOTOS_SHEET
+    );
+
+
+  /* Delete photos */
+
+  if (photos) {
+
+    const rows =
+      photos
+        .getDataRange()
+        .getValues();
+
+
+    for (
+      let i = rows.length - 1;
+      i >= 1;
+      i--
+    ) {
+
+      if (
+        String(
+          rows[i][1]
+        ) ===
+        String(sessionId)
+      ) {
+
+        const fileId =
+          String(
+            rows[i][2] || ""
+          );
+
+
+        if (fileId) {
+
+          try {
+
+            DriveApp
+              .getFileById(
+                fileId
+              )
+              .setTrashed(true);
+
+          } catch (error) {}
+
+        }
+
+
+        photos.deleteRow(
+          i + 1
+        );
+
+      }
+
+    }
+
+  }
+
+
+  /* Delete session */
+
+  if (sessions) {
+
+    const rows =
+      sessions
+        .getDataRange()
+        .getValues();
+
+
+    for (
+      let i = rows.length - 1;
+      i >= 1;
+      i--
+    ) {
+
+      if (
+        String(
+          rows[i][0]
+        ) ===
+        String(sessionId)
+      ) {
+
+        sessions.deleteRow(
+          i + 1
+        );
+
+        break;
+
+      }
+
+    }
+
+  }
+
+
+  SpreadsheetApp.flush();
+
+
+  return {
+
+    success: true
+
+  };
+
+}
+
+
+/* =========================================================
+   UPLOAD PHOTO
+========================================================= */
+
+function uploadPhoto(
+  sessionId,
+  fileName,
+  base64Data,
+  mimeType
+) {
+
+  if (!sessionId) {
+
+    throw new Error(
+      "Не вибрана фотосесія."
+    );
+
+  }
+
+
+  if (!base64Data) {
+
+    throw new Error(
+      "Файл порожній."
+    );
+
+  }
+
+
+  if (
+    base64Data.length >
+    11000000
+  ) {
+
+    throw new Error(
+      "Файл занадто великий. Максимум приблизно 8 MB."
+    );
+
+  }
+
+
+  const folder =
+    getPhotoFolder();
+
+
+  const blob =
+    Utilities.newBlob(
+
+      Utilities.base64Decode(
+        base64Data
+      ),
+
+      mimeType ||
+        "image/jpeg",
+
+      fileName ||
+        "photo.jpg"
+
+    );
+
+
+  const file =
+    folder.createFile(
+      blob
+    );
+
+
+  try {
+
+    file.setSharing(
+      DriveApp.Access.ANYONE_WITH_LINK,
+      DriveApp.Permission.VIEW
+    );
+
+  } catch (error) {}
+
+
+  const fileId =
+    file.getId();
+
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sheet =
+    ss.getSheetByName(
+      PHOTOS_SHEET
+    );
+
+
+  const rows =
+    sheet
+      .getDataRange()
+      .getValues();
+
+
+  let maxOrder = 0;
+
+
+  for (
+    let i = 1;
+    i < rows.length;
+    i++
+  ) {
+
+    if (
+      String(
+        rows[i][1]
+      ) ===
+      String(sessionId)
+    ) {
+
+      maxOrder =
+        Math.max(
+
+          maxOrder,
+
+          Number(
+            rows[i][4] || 0
+          )
+
+        );
+
+    }
+
+  }
+
+
+  const photoId =
+    Utilities.getUuid();
+
+
+  sheet.appendRow([
+
+    photoId,
+
+    sessionId,
+
+    fileId,
+
+    fileName,
+
+    maxOrder + 1,
+
+    true
+
+  ]);
+
+
+  const url =
+    "https://drive.google.com/uc?export=view&id=" +
+    fileId;
+
+
+  setCoverIfEmpty(
+    sessionId,
+    url
+  );
+
+
+  SpreadsheetApp.flush();
+
+
+  return {
+
+    success: true,
+
+    id:
+      photoId,
+
+    fileId:
+      fileId,
+
+    url:
+      url
+
+  };
+
+}
+
+
+/* =========================================================
+   DELETE PHOTO
+========================================================= */
+
+function deletePhoto(
+  photoId
+) {
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sheet =
+    ss.getSheetByName(
+      PHOTOS_SHEET
+    );
+
+
+  if (!sheet) {
+
+    throw new Error(
+      "Аркуш Фото не знайдено."
+    );
+
+  }
+
+
+  const rows =
+    sheet
+      .getDataRange()
+      .getValues();
+
+
+  for (
+    let i = rows.length - 1;
+    i >= 1;
+    i--
+  ) {
+
+    if (
+      String(
+        rows[i][0]
+      ) ===
+      String(photoId)
+    ) {
+
+      const fileId =
+        String(
+          rows[i][2] || ""
+        );
+
+
+      if (fileId) {
+
+        try {
+
+          DriveApp
+            .getFileById(
+              fileId
+            )
+            .setTrashed(true);
+
+        } catch (error) {}
+
+      }
+
+
+      sheet.deleteRow(
+        i + 1
+      );
+
+
+      SpreadsheetApp.flush();
+
+
+      return {
+
+        success: true
+
+      };
+
+    }
+
+  }
+
+
+  throw new Error(
+    "Фото не знайдено."
+  );
+
+}
+
+
+/* =========================================================
+   SET COVER
+========================================================= */
+
+function setCover(
+  sessionId,
+  fileId
+) {
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sheet =
+    ss.getSheetByName(
+      SESSIONS_SHEET
+    );
+
+
+  const url =
+    "https://drive.google.com/uc?export=view&id=" +
+    fileId;
+
+
+  const rows =
+    sheet
+      .getDataRange()
+      .getValues();
+
+
+  for (
+    let i = 1;
+    i < rows.length;
+    i++
+  ) {
+
+    if (
+      String(
+        rows[i][0]
+      ) ===
+      String(sessionId)
+    ) {
+
+      sheet
+        .getRange(
+          i + 1,
+          12
+        )
+        .setValue(
+          url
+        );
+
+
+      SpreadsheetApp.flush();
+
+
+      return {
+
+        success: true,
+
+        url:
+          url
+
+      };
+
+    }
+
+  }
+
+
+  throw new Error(
+    "Фотосесію не знайдено."
+  );
+
+}
+
+
+/* =========================================================
+   AUTO COVER
+========================================================= */
+
+function setCoverIfEmpty(
+  sessionId,
+  url
+) {
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sheet =
+    ss.getSheetByName(
+      SESSIONS_SHEET
+    );
+
+
+  const rows =
+    sheet
+      .getDataRange()
+      .getValues();
+
+
+  for (
+    let i = 1;
+    i < rows.length;
+    i++
+  ) {
+
+    if (
+      String(
+        rows[i][0]
+      ) ===
+      String(sessionId)
+    ) {
+
+      const existing =
+        String(
+          rows[i][11] || ""
+        ).trim();
+
+
+      if (!existing) {
+
+        sheet
+          .getRange(
+            i + 1,
+            12
+          )
+          .setValue(
+            url
+          );
+
+      }
+
+
+      return;
+
+    }
+
+  }
+
+}
+
+
+/* =========================================================
+   DRIVE FOLDER
+========================================================= */
+
+function getPhotoFolder() {
+
+  const props =
+    PropertiesService
+      .getScriptProperties();
+
+
+  const existingId =
+    props.getProperty(
+      "PHOTO_FOLDER_ID"
+    );
+
+
+  if (existingId) {
+
+    try {
+
+      return DriveApp
+        .getFolderById(
+          existingId
+        );
+
+    } catch (error) {}
+
+  }
+
+
+  const folder =
+    DriveApp.createFolder(
+      "Nelli Website Photos"
+    );
+
+
+  props.setProperty(
+    "PHOTO_FOLDER_ID",
+    folder.getId()
+  );
+
+
+  return folder;
+
+}
+
+
+/* =========================================================
+   PUBLIC CONTENT
+========================================================= */
+
+function getPublicContent() {
+
+  setupContentSheets();
+
+
+  const ss =
+    SpreadsheetApp.openById(
+      SPREADSHEET_ID
+    );
+
+
+  const sessions =
+    getRowsAsObjects(
+      ss.getSheetByName(
+        SESSIONS_SHEET
+      )
+    );
+
+
+  const photos =
+    getRowsAsObjects(
+      ss.getSheetByName(
+        PHOTOS_SHEET
+      )
+    );
+
+
+  const activeSessions =
+    sessions
+
+      .filter(function (session) {
+
+        return (
+
+          session["Активна"] === true ||
+
+          String(
+            session["Активна"]
+          ).toLowerCase() ===
+          "true"
+
+        );
+
+      })
+
+      .sort(function (a, b) {
+
+        return (
+
+          Number(
+            a["Порядок"] || 0
+          ) -
+
+          Number(
+            b["Порядок"] || 0
+          )
+
+        );
+
+      });
+
+
+  return {
+
+    success: true,
+
+    sessions:
+      activeSessions.map(
+        function (session) {
+
+          const sessionId =
+            String(
+              session["ID"] || ""
+            );
+
+
+          const sessionPhotos =
+            photos
+
+              .filter(function (photo) {
+
+                const active =
+                  photo["Активна"] === true ||
+
+                  String(
+                    photo["Активна"]
+                  ).toLowerCase() ===
+                  "true";
+
+
+                return (
+
+                  String(
+                    photo["Session ID"] || ""
+                  ) ===
+                  sessionId &&
+
+                  active
+
+                );
+
+              })
+
+              .sort(function (a, b) {
+
+                return (
+
+                  Number(
+                    a["Порядок"] || 0
+                  ) -
+
+                  Number(
+                    b["Порядок"] || 0
+                  )
+
+                );
+
+              });
+
+
+          return {
+
+            id:
+              sessionId,
+
+            category:
+              session["Категорія"] || "",
+
+            slug:
+              session["Slug"] || "",
+
+            title: {
+
+              uk:
+                session["Назва UA"] || "",
+
+              ru:
+                session["Назва RU"] || "",
+
+              en:
+                session["Назва EN"] || "",
+
+              cz:
+                session["Назва CZ"] || ""
+
+            },
+
+            description: {
+
+              uk:
+                session["Опис UA"] || "",
+
+              ru:
+                session["Опис RU"] || "",
+
+              en:
+                session["Опис EN"] || "",
+
+              cz:
+                session["Опис CZ"] || ""
+
+            },
+
+            cover:
+              session["Обкладинка"] || "",
+
+            order:
+              Number(
+                session["Порядок"] || 0
+              ),
+
+            photos:
+              sessionPhotos.map(
+                function (photo) {
+
+                  const fileId =
+                    String(
+                      photo["File ID"] || ""
+                    );
+
+
+                  return {
+
+                    id:
+                      photo["ID"] || "",
+
+                    fileId:
+                      fileId,
+
+                    title:
+                      photo["Назва"] || "",
+
+                    order:
+                      Number(
+                        photo["Порядок"] || 0
+                      ),
+
+                    url:
+                      fileId
+
+                        ? "https://drive.google.com/uc?export=view&id=" +
+                          fileId
+
+                        : ""
+
+                  };
+
+                }
+              )
+
+          };
+
+        }
+      )
+
+  };
+
+}
+
+
+/* =========================================================
+   SHEET ROWS → OBJECTS
+========================================================= */
+
+function getRowsAsObjects(
+  sheet
+) {
+
+  const values =
+    sheet
+      .getDataRange()
+      .getValues();
+
+
+  if (
+    values.length < 2
+  ) {
+
+    return [];
+
+  }
+
+
+  const headers =
+    values[0];
+
+
+  return values
+
+    .slice(1)
+
+    .map(function (row) {
+
+      const object = {};
+
+
+      headers.forEach(
+        function (
+          header,
+          index
+        ) {
+
+          object[header] =
+            row[index];
+
+        }
+      );
+
+
+      return object;
+
+    });
+
+}
+
+
+/* =========================================================
+   ADMIN ERROR
+========================================================= */
+
+function adminError(
+  message,
+  callback
+) {
+
+  const data = {
+
+    success: false,
+
+    error:
+      message
+
+  };
+
+
+  if (callback) {
+
+    return ContentService
+
+      .createTextOutput(
+
+        callback +
+        "(" +
+        JSON.stringify(data) +
+        ");"
+
+      )
+
+      .setMimeType(
+        ContentService.MimeType.JAVASCRIPT
+      );
+
+  }
+
+
+  return jsonResponse(
+    data
+  );
+
+}
+
+
+/* =========================================================
+   JSON
+========================================================= */
+
+function jsonResponse(
+  data
+) {
+
+  return ContentService
+
+    .createTextOutput(
+      JSON.stringify(data)
+    )
+
+    .setMimeType(
+      ContentService.MimeType.JSON
+    );
+
+}
