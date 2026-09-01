@@ -1,4 +1,3 @@
-```javascript
 const translations = {
     uk: {
         aboutNav: "Про мене",
