@@ -163,11 +163,43 @@
         </div>
 
         <nav class="admin-nav" aria-label="Admin sections">
-            <button type="button" class="admin-nav-button active" data-view="portfolio">Portfolio</button>
+            <button type="button" class="admin-nav-button active" data-view="dashboard">Dashboard</button>
+            <button type="button" class="admin-nav-button" data-view="calendar">Calendar</button>
+            <button type="button" class="admin-nav-button" data-view="portfolio">Portfolio</button>
             <button type="button" class="admin-nav-button" data-view="content">Content</button>
             <button type="button" class="admin-nav-button" data-view="services">Services</button>
             <button type="button" class="admin-nav-button" data-view="social">Social & SEO</button>
+            <button type="button" class="admin-nav-button" data-view="settings">Settings</button>
         </nav>
+
+        <section id="dashboardView" class="admin-status-panel" aria-labelledby="dashboardTitle">
+            <div class="eyebrow">DASHBOARD</div>
+            <h2 id="dashboardTitle">Стан сайту</h2>
+            <div class="status-grid">
+                <div><strong id="dashboardSessionCount">0</strong><span>sessions</span></div>
+                <div><strong id="dashboardPhotoCount">0</strong><span>photos</span></div>
+                <div><strong>4</strong><span>languages</span></div>
+            </div>
+            <p id="dashboardStatus" class="field-help">Введіть пароль, щоб перевірити API та завантажити актуальний стан.</p>
+        </section>
+
+        <section id="calendarView" class="admin-status-panel hidden" aria-labelledby="calendarTitle">
+            <div class="eyebrow">CALENDAR</div>
+            <h2 id="calendarTitle">Календар бронювань</h2>
+            <p class="calendar-blocker">Календар не знайдений у поточному workspace, а backend actions `calendar`, `bookings` і `sessions` повертають лише health response. Дані не імітуються.</p>
+            <div class="calendar-controls">
+                <button class="outline-button" type="button" disabled>Previous</button>
+                <strong>Existing Google Sheets integration required</strong>
+                <button class="outline-button" type="button" disabled>Next</button>
+            </div>
+        </section>
+
+        <section id="settingsView" class="admin-status-panel hidden" aria-labelledby="settingsTitle">
+            <div class="eyebrow">SETTINGS</div>
+            <h2 id="settingsTitle">Налаштування</h2>
+            <p class="field-help">Пароль перевіряється локально для тимчасового GitHub Pages режиму. Він не записується у storage або cookies.</p>
+            <p class="field-help">CMS persistence, photo storage та календар потребують реальних backend actions Google Apps Script.</p>
+        </section>
 
         <section id="contentEditor" class="content-editor hidden" aria-labelledby="contentEditorTitle">
             <div class="editor-header">

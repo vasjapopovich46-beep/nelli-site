@@ -1,6 +1,8 @@
 const API_URL =
     "https://script.google.com/macros/s/AKfycbxmJELRpugwDjDo_MOlppUq1VZrt1101d_E68XOTUTpUOkVVvlwmLOZA-zilNhRoxc3/exec";
 
+const ADMIN_PASSWORD = "Paparazzi";
+
 
 const state = {
 
@@ -102,6 +104,11 @@ function login() {
         "Перевіряємо..."
     );
 
+    if (entered !== ADMIN_PASSWORD) {
+        loginButton.disabled = false;
+        setMessage(loginMessage, "Неправильний пароль.");
+        return;
+    }
 
     state.token =
         entered;
@@ -123,17 +130,14 @@ function login() {
      * Тепер окремо перевіряємо API.
      */
 
-    loadData()
-        .then(function () {
-            loginScreen.classList.add("hidden");
-            app.classList.remove("hidden");
-            setMessage(globalMessage, "Підключено ✓");
-        })
-        .catch(function (error) {
-            state.token = "";
-            loginButton.disabled = false;
-            setMessage(loginMessage, "API: " + (error.message || "не вдалося отримати дані"));
-        });
+    loginScreen.classList.add("hidden");
+    app.classList.remove("hidden");
+    setMessage(globalMessage, "Dashboard відкрито. " + "API перевіряється...");
+    loadData().then(function () {
+        setMessage(globalMessage, "API підключено ✓");
+    }).catch(function (error) {
+        setMessage(globalMessage, "API недоступний: " + (error.message || "дані не завантажено"));
+    });
 
 }
 
@@ -288,6 +292,7 @@ function loadData() {
 
 
                         renderSessions();
+                            updateDashboard();
                         renderContentEditor();
 
 
@@ -2095,6 +2100,9 @@ const adminViewButtons = Array.from(document.querySelectorAll('[data-view]'));
 const contentEditor = document.getElementById('contentEditor');
 const contentFields = document.getElementById('contentFields');
 const contentStatus = document.getElementById('contentStatus');
+const dashboardView = document.getElementById('dashboardView');
+const calendarView = document.getElementById('calendarView');
+const settingsView = document.getElementById('settingsView');
 
 adminViewButtons.forEach(function (button) {
     button.addEventListener('click', function () {
@@ -2102,13 +2110,26 @@ adminViewButtons.forEach(function (button) {
         adminViewButtons.forEach(function (item) {
             item.classList.toggle('active', item === button);
         });
-        const isContent = view !== 'portfolio';
+        const isPortfolio = view === 'portfolio';
+        const isContent = ['content', 'services', 'social'].includes(view);
         contentEditor.classList.toggle('hidden', !isContent);
-        document.querySelector('.toolbar').classList.toggle('hidden', isContent);
-        document.querySelector('.admin-layout').classList.toggle('hidden', isContent);
+        document.querySelector('.toolbar').classList.toggle('hidden', !isPortfolio);
+        document.querySelector('.admin-layout').classList.toggle('hidden', !isPortfolio);
+        dashboardView.classList.toggle('hidden', view !== 'dashboard');
+        calendarView.classList.toggle('hidden', view !== 'calendar');
+        settingsView.classList.toggle('hidden', view !== 'settings');
         if (isContent) renderContentEditor();
     });
 });
+
+function updateDashboard() {
+    const sessions = document.getElementById('dashboardSessionCount');
+    const photos = document.getElementById('dashboardPhotoCount');
+    if (sessions) sessions.textContent = state.sessions.length;
+    if (photos) photos.textContent = state.photos.length;
+}
+
+document.querySelector('[data-view="dashboard"]').click();
 
 function contentFieldMarkup(key, label, lang, value) {
     const long = /Text|description|message|sent|Error|validation/i.test(key);

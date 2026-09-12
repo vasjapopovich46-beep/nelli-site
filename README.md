@@ -29,4 +29,6 @@ The existing admin read action remains JSONP-compatible: `GET ?action=adminData&
 
 ## Authentication requirement
 
-The repository contains no Google Apps Script source. The deployed endpoint must validate the in-memory admin password server-side using the Script Properties key `ADMIN_PASSWORD`, then return the requested admin data. No admin password is stored in this repository or browser storage. Until that backend contract is deployed, the admin UI is integration-ready but cannot provide real authentication or persistence by itself.
+GitHub Pages uses the requested temporary client-side password `Paparazzi`. It is checked only in memory and is never stored in localStorage, sessionStorage, or cookies. This is not server-side security and must not be used for sensitive production administration.
+
+The repository contains no Google Apps Script source. The existing endpoint rejects the requested CMS/calendar actions and returns `NELLI API OK` for unsupported actions. No calendar or bookings implementation exists in the repository or verified API responses, so the admin displays an explicit calendar blocker instead of fake events. A future backend can replace this temporary gate and implement the existing Google Sheets contract.
