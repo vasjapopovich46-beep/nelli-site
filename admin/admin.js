@@ -2,10 +2,6 @@ const API_URL =
     "https://script.google.com/macros/s/AKfycbxmJELRpugwDjDo_MOlppUq1VZrt1101d_E68XOTUTpUOkVVvlwmLOZA-zilNhRoxc3/exec";
 
 
-const TOKEN_KEY =
-    "nelli-admin-token";
-
-
 const state = {
 
     token: "",
@@ -26,9 +22,25 @@ const state = {
 
 
 /* =========================================================
-const logoutButton =
-    document.getElementById("editorTitle");
-            entered;
+   ELEMENTS
+========================================================= */
+
+const loginScreen = document.getElementById("loginScreen");
+const app = document.getElementById("app");
+const loginForm = document.getElementById("loginForm");
+const adminToken = document.getElementById("adminToken");
+const loginButton = document.getElementById("loginButton");
+const loginMessage = document.getElementById("loginMessage");
+const globalMessage = document.getElementById("globalMessage");
+const logoutButton = document.getElementById("logoutButton");
+const sessionsList = document.getElementById("sessionsList");
+const sessionSearch = document.getElementById("sessionSearch");
+const sessionCount = document.getElementById("sessionCount");
+const newSessionButton = document.getElementById("newSessionButton");
+const emptyCreateButton = document.getElementById("emptyCreateButton");
+const emptyState = document.getElementById("emptyState");
+const editor = document.getElementById("editor");
+const editorTitle = document.getElementById("editorTitle");
 const editorStatus =
     document.getElementById("editorStatus");
 
@@ -95,26 +107,6 @@ function login() {
         entered;
 
 
-    sessionStorage.setItem(
-        TOKEN_KEY,
-        entered
-    );
-
-
-    /*
-     * Відкриваємо адмінку одразу.
-     */
-
-    loginScreen.classList.add(
-        "hidden"
-    );
-
-
-    app.classList.remove(
-        "hidden"
-    );
-
-
     setMessage(
         loginMessage,
         ""
@@ -123,7 +115,7 @@ function login() {
 
     setMessage(
         globalMessage,
-        "Ключ прийнято. Підключення до API..."
+        "Пароль прийнято. Підключення до API..."
     );
 
 
@@ -132,38 +124,16 @@ function login() {
      */
 
     loadData()
-
-        .then(
-            function () {
-
-                setMessage(
-                    globalMessage,
-                    "Підключено ✓"
-                );
-
-            }
-        )
-
-        .catch(
-            function (error) {
-
-                console.error(
-                    "NELLI API ERROR:",
-                    error
-                );
-
-
-                setMessage(
-                    globalMessage,
-                    "API: " +
-                    (
-                        error.message ||
-                        "не вдалося отримати дані"
-                    )
-                );
-
-            }
-        );
+        .then(function () {
+            loginScreen.classList.add("hidden");
+            app.classList.remove("hidden");
+            setMessage(globalMessage, "Підключено ✓");
+        })
+        .catch(function (error) {
+            state.token = "";
+            loginButton.disabled = false;
+            setMessage(loginMessage, "API: " + (error.message || "не вдалося отримати дані"));
+        });
 
 }
 
@@ -175,47 +145,14 @@ function login() {
 logoutButton.addEventListener(
     "click",
     function () {
-
-        sessionStorage.removeItem(
-            TOKEN_KEY
-        );
-
-
-        state.token =
-            "";
-
-        state.currentId =
-            null;
-
-
-        app.classList.add(
-            "hidden"
-        );
-
-
-        loginScreen.classList.remove(
-            "hidden"
-        );
-
-
-        adminToken.value =
-            "";
-
-
-        loginButton.disabled =
-            false;
-
-
-        setMessage(
-            loginMessage,
-            ""
-        );
-
-
-        setMessage(
-            globalMessage,
-            ""
-        );
+        state.token = "";
+        state.currentId = null;
+        app.classList.add("hidden");
+        loginScreen.classList.remove("hidden");
+        adminToken.value = "";
+        loginButton.disabled = false;
+        setMessage(loginMessage, "");
+        setMessage(globalMessage, "");
 
     }
 );
@@ -2292,84 +2229,5 @@ function saveSiteContent(publish) {
    START
 ========================================================= */
 
-(function start() {
-
-    /*
-     * Для тесту очищаємо старий ключ,
-     * щоб телефон не використовував старі дані.
-     */
-
-    const saved =
-        sessionStorage.getItem(
-            TOKEN_KEY
-        );
-
-
-    if (saved) {
-
-        state.token =
-            saved;
-
-
-        loadData()
-
-            .then(
-                function () {
-
-                    loginScreen.classList.add(
-                        "hidden"
-                    );
-
-                    app.classList.remove(
-                        "hidden"
-                    );
-
-                    setMessage(
-                        globalMessage,
-                        "Підключено ✓"
-                    );
-
-                }
-            )
-
-            .catch(
-                function (error) {
-
-                    /*
-                     * Ключ правильний,
-                     * але API не відповів.
-                     */
-
-                    loginScreen.classList.remove(
-                        "hidden"
-                    );
-
-                    app.classList.add(
-                        "hidden"
-                    );
-
-
-                    sessionStorage.removeItem(
-                        TOKEN_KEY
-                    );
-
-
-                    state.token =
-                        "";
-
-
-                    setMessage(
-                        loginMessage,
-                        "API: " +
-                        (
-                            error.message ||
-                            "немає відповіді"
-                        )
-                    );
-
-                }
-            );
-
-    }
-
-})();
+loginScreen.classList.remove("hidden");
+app.classList.add("hidden");
