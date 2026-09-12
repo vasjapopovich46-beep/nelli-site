@@ -593,7 +593,7 @@ function initMobileNav() {
 }
 
 function initImageFallbacks() {
-    els('img').forEach(function (img) {
+    els('.about-photo img, .work img').forEach(function (img) {
         if (img.complete && img.naturalWidth === 0) {
             img.hidden = true;
             return;
