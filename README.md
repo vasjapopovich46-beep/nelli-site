@@ -9,10 +9,12 @@ GitHub Pages deploys the repository root on every push to `main` through `.githu
 
 ## CMS and backend contract
 
-The public site reads published content through the existing Google Apps Script URL using JSONP:
+The public site reads published content through the existing Google Apps Script URL using a no-store CORS JSON request:
 
-- `GET ?action=publicData&callback=...`
+- `GET ?action=publicData`
 - response: `{ success: true, siteContent: { ... } }`
+
+The current deployed endpoint returns `NELLI API OK` for `publicData`, so the public site keeps its static fallback until the backend returns this JSON contract with browser CORS enabled.
 
 The admin sends authenticated JSON POST requests to the same URL:
 
@@ -22,6 +24,8 @@ The admin sends authenticated JSON POST requests to the same URL:
 - existing `saveSession`, `deleteSession`, `uploadPhoto`, `deletePhoto`, and `setCover`
 
 `siteContent` contains translations for `uk`, `ru`, `en`, and `cz`, plus `media`, `links`, `sections`, `services`, `social`, `seo`, `portfolio`, `published`, and `version`.
+
+The existing admin read action remains JSONP-compatible: `GET ?action=adminData&token=...&callback=...`. Writes currently use the existing opaque `no-cors` POST format; the UI reports them as unconfirmed requests until the backend returns a confirmable response.
 
 ## Authentication requirement
 

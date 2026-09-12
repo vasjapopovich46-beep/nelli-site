@@ -978,7 +978,7 @@ function saveCurrentSession() {
 
             setMessage(
                 editorStatus,
-                "Збережено ✓"
+                "Запит на збереження надіслано. Оновіть дані для підтвердження."
             );
 
         }
@@ -1087,7 +1087,7 @@ deleteSessionButton.addEventListener(
 
                 setMessage(
                     globalMessage,
-                    "Фотосесію видалено ✓"
+                    "Запит на видалення надіслано. Оновіть дані для підтвердження."
                 );
 
             }
@@ -1274,7 +1274,7 @@ async function uploadPhotos(files) {
 
     setMessage(
         editorStatus,
-        "Фотографії завантажено ✓"
+        "Запити на завантаження надіслано. Оновіть дані для підтвердження."
     );
 
 }
@@ -1591,7 +1591,7 @@ function setCover(
 
             setMessage(
                 editorStatus,
-                "Обкладинку встановлено ✓"
+                "Запит на обкладинку надіслано. Оновіть дані для підтвердження."
             );
 
         }
@@ -1675,7 +1675,7 @@ function deletePhoto(
 
             setMessage(
                 editorStatus,
-                "Фото видалено ✓"
+                "Запит на видалення фото надіслано. Оновіть дані для підтвердження."
             );
 
         }
@@ -2217,7 +2217,7 @@ function saveSiteContent(publish) {
     postAdmin({ action: publish ? 'publishSiteContent' : 'saveSiteContent', content: content })
         .then(function () {
             state.siteContent = content;
-            setMessage(contentStatus, publish ? 'Publish request sent. ✓' : 'Draft request sent. ✓');
+            setMessage(contentStatus, publish ? 'Publish request sent. Backend confirmation required.' : 'Draft request sent. Backend confirmation required.');
         })
         .catch(function (error) {
             setMessage(contentStatus, error.message || 'Content API error.');

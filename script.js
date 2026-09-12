@@ -521,34 +521,25 @@ function applySiteContent(content) {
 }
 
 function loadPublicContent() {
-    return new Promise(function (resolve, reject) {
-        const callbackName = '__nelliPublicContent_' + Date.now();
-        const script = document.createElement('script');
-        const timeout = setTimeout(function () {
-            cleanup();
-            reject(new Error('Public content API timeout'));
-        }, 5000);
-        function cleanup() {
-            clearTimeout(timeout);
-            delete window[callbackName];
-            if (script.parentNode) script.parentNode.removeChild(script);
+    return fetch(PUBLIC_CONTENT_URL + '?action=publicData&_=' + Date.now(), {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-store',
+        headers: { Accept: 'application/json' }
+    }).then(function (response) {
+        if (!response.ok) throw new Error('Public content API unavailable');
+        return response.text();
+    }).then(function (body) {
+        let data;
+        try {
+            data = JSON.parse(body);
+        } catch (error) {
+            throw new Error('Public content API contract is not available');
         }
-        window[callbackName] = function (data) {
-            cleanup();
-            const content = normalizePublicData(data);
-            if (!content) {
-                reject(new Error((data && data.error) || 'No public content returned'));
-                return;
-            }
-            applySiteContent(content);
-            resolve(content);
-        };
-        script.onerror = function () {
-            cleanup();
-            reject(new Error('Public content API unavailable'));
-        };
-        script.src = PUBLIC_CONTENT_URL + '?action=publicData&callback=' + encodeURIComponent(callbackName) + '&_=' + Date.now();
-        document.body.appendChild(script);
+        const content = normalizePublicData(data);
+        if (!content) throw new Error((data && data.error) || 'No public content returned');
+        applySiteContent(content);
+        return content;
     });
 }
 
