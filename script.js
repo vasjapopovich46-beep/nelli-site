@@ -335,25 +335,89 @@ function setLang(lang) {
 
 
 // LIGHTBOX
+let _previousActiveElement = null;
+let _lightboxKeydownHandler = null;
+
 function openLightbox(src, caption) {
     const box = el('#lightbox');
     const img = el('#lightboxImage');
     const cap = el('#lightboxCaption');
+    const closeBtn = el('.lightbox-close');
+    const main = document.querySelector('main');
     if (!box || !img) return;
+
+    _previousActiveElement = document.activeElement;
+
     img.src = src;
     img.alt = caption || '';
     if (cap) cap.textContent = caption || '';
+
+    document.body.classList.add('no-scroll');
+
+    // hide main content from assistive tech
+    if (main) main.setAttribute('aria-hidden', 'true');
+
     box.classList.remove('hidden');
     box.setAttribute('aria-hidden', 'false');
+
+    // focus management
+    if (closeBtn) {
+        closeBtn.focus();
+    }
+
+    // trap focus & handle Escape
+    _lightboxKeydownHandler = function (e) {
+        if (e.key === 'Escape') {
+            closeLightbox();
+            return;
+        }
+        if (e.key === 'Tab') {
+            // simple focus trap
+            const focusable = box.querySelectorAll('a[href], area[href], input:not([disabled]), textarea:not([disabled]), button:not([disabled]), [tabindex]:not([tabindex="-1"])');
+            if (!focusable.length) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey) {
+                if (document.activeElement === first) {
+                    e.preventDefault();
+                    last.focus();
+                }
+            } else {
+                if (document.activeElement === last) {
+                    e.preventDefault();
+                    first.focus();
+                }
+            }
+        }
+    };
+
+    document.addEventListener('keydown', _lightboxKeydownHandler);
 }
 
 function closeLightbox() {
     const box = el('#lightbox');
     const img = el('#lightboxImage');
+    const main = document.querySelector('main');
     if (!box) return;
+
     box.classList.add('hidden');
     box.setAttribute('aria-hidden', 'true');
+
+    document.body.classList.remove('no-scroll');
+
+    // restore main aria
+    if (main) main.removeAttribute('aria-hidden');
+
     if (img) img.src = '';
+
+    if (_lightboxKeydownHandler) {
+        document.removeEventListener('keydown', _lightboxKeydownHandler);
+        _lightboxKeydownHandler = null;
+    }
+
+    if (_previousActiveElement && typeof _previousActiveElement.focus === 'function') {
+        try { _previousActiveElement.focus(); } catch (e) {}
+    }
 }
 
 function initLightbox() {
@@ -362,8 +426,15 @@ function initLightbox() {
         const info = work.querySelector('.portfolio-info');
         if (img) {
             img.style.cursor = 'pointer';
+            img.setAttribute('tabindex', '0');
             img.addEventListener('click', function () {
                 openLightbox(img.src, info ? info.innerText.trim() : '');
+            });
+            img.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    openLightbox(img.src, info ? info.innerText.trim() : '');
+                }
             });
         }
     });
@@ -371,11 +442,12 @@ function initLightbox() {
     const box = el('#lightbox');
     if (!box) return;
     box.addEventListener('click', function (e) {
-        if (e.target.hasAttribute('data-close')) closeLightbox();
+        if (e.target.hasAttribute('data-close') || e.target.classList.contains('lightbox-backdrop')) closeLightbox();
     });
 
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeLightbox();
+    // Close buttons
+    els('.lightbox-close').forEach(function (btn) {
+        btn.addEventListener('click', closeLightbox);
     });
 }
 
@@ -391,27 +463,17 @@ function showFormMessage(text, isError = false) {
 }
 
 async function submitForm(data) {
-    // try to send JSON with CORS — require backend to allow CORS
-    const res = await fetch(GOOGLE_SCRIPT_URL, {
+    // To preserve compatibility with existing Google Apps Script endpoint,
+    // send request using 'no-cors' mode which results in an opaque response.
+    // We cannot reliably parse success from the response in this mode.
+    return fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
+        mode: 'no-cors',
         headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'text/plain;charset=utf-8'
         },
         body: JSON.stringify(data)
     });
-
-    // if response not ok, try to parse text
-    if (!res.ok) {
-        const txt = await res.text().catch(() => '');
-        throw new Error(txt || ('HTTP ' + res.status));
-    }
-
-    // expect JSON response with success flag
-    const json = await res.json().catch(() => null);
-    if (json && json.success === true) return json;
-    if (json && json.error) throw new Error(json.error);
-
-    return json || {};
 }
 
 function validateEmail(email) {
@@ -453,17 +515,12 @@ function initForm() {
             submitBtn.disabled = true;
             showFormMessage('Відправлення...', false);
 
-            const result = await submitForm(payload);
+            // Use existing endpoint format (no-cors) to avoid breaking backend.
+            await submitForm(payload);
 
-            // if backend returned success
-            if (result && result.success === true) {
-                showFormMessage(result.message || 'Заявку отримано ✓', false);
-                form.reset();
-            } else {
-                // backend may not return json — treat as success only if status 200
-                showFormMessage('Заявку надіслано. Якщо ви не отримали підтвердження, перевірте налаштування backend.', false);
-                form.reset();
-            }
+            // With no-cors mode we cannot confirm backend success. Inform the user honestly.
+            showFormMessage('Запит надіслано. Якщо ви не отримали підтвердження, перевірте налаштування backend.', false);
+            form.reset();
 
         } catch (err) {
             console.error('Form send error:', err);
@@ -473,6 +530,35 @@ function initForm() {
             submitBtn.disabled = false;
         }
 
+    });
+}
+
+
+// MOBILE NAV
+function initMobileNav() {
+    const toggle = el('.nav-toggle');
+    const body = document.body;
+    const nav = el('.nav-links');
+    if (!toggle || !nav) return;
+
+    toggle.addEventListener('click', function () {
+        const open = body.classList.toggle('nav-open');
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        // When menu opens, move focus into the first link
+        if (open) {
+            const firstLink = nav.querySelector('a');
+            if (firstLink) firstLink.focus();
+        }
+    });
+
+    // close nav when clicking a link (mobile)
+    els('.nav-links a').forEach(function (a) {
+        a.addEventListener('click', function () {
+            if (body.classList.contains('nav-open')) {
+                body.classList.remove('nav-open');
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+        });
     });
 }
 
@@ -500,5 +586,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // init form
     initForm();
+
+    // mobile nav
+    initMobileNav();
 
 });
