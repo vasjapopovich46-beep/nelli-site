@@ -476,7 +476,12 @@ function applySiteContent(content) {
 
     Object.keys(SITE_CONTENT.translations || {}).forEach(function (lang) {
         if (TRANSLATIONS[lang]) {
-            TRANSLATIONS[lang] = Object.assign({}, TRANSLATIONS[lang], SITE_CONTENT.translations[lang]);
+            const overrides = Object.keys(SITE_CONTENT.translations[lang] || {}).reduce(function (result, key) {
+                const value = SITE_CONTENT.translations[lang][key];
+                if (value !== '') result[key] = value;
+                return result;
+            }, {});
+            TRANSLATIONS[lang] = Object.assign({}, TRANSLATIONS[lang], overrides);
         }
     });
 
@@ -542,6 +547,11 @@ function loadPublicContent() {
         return content;
     });
 }
+
+window.addEventListener('message', function (event) {
+    if (event.origin !== window.location.origin || !event.data || event.data.type !== 'nelli-preview-content') return;
+    applySiteContent(event.data.content);
+});
 
 
 // LIGHTBOX

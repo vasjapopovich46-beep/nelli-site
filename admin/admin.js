@@ -2102,7 +2102,9 @@ const contentFields = document.getElementById('contentFields');
 const contentStatus = document.getElementById('contentStatus');
 const dashboardView = document.getElementById('dashboardView');
 const calendarView = document.getElementById('calendarView');
+const clientsView = document.getElementById('clientsView');
 const settingsView = document.getElementById('settingsView');
+const livePreview = document.getElementById('livePreview');
 
 adminViewButtons.forEach(function (button) {
     button.addEventListener('click', function () {
@@ -2110,15 +2112,18 @@ adminViewButtons.forEach(function (button) {
         adminViewButtons.forEach(function (item) {
             item.classList.toggle('active', item === button);
         });
+        const isDatabase = view === 'database';
         const isPortfolio = view === 'portfolio';
         const isContent = ['content', 'services', 'social'].includes(view);
-        contentEditor.classList.toggle('hidden', !isContent);
-        document.querySelector('.toolbar').classList.toggle('hidden', !isPortfolio);
-        document.querySelector('.admin-layout').classList.toggle('hidden', !isPortfolio);
-        dashboardView.classList.toggle('hidden', view !== 'dashboard');
+        const isWebsiteEditor = view === 'website-editor' || isContent;
+        contentEditor.classList.toggle('hidden', !isWebsiteEditor);
+        document.querySelector('.toolbar').classList.toggle('hidden', !(isDatabase || isPortfolio));
+        document.querySelector('.admin-layout').classList.toggle('hidden', !(isDatabase || isPortfolio));
+        dashboardView.classList.toggle('hidden', !isDatabase && view !== 'dashboard');
         calendarView.classList.toggle('hidden', view !== 'calendar');
+        clientsView.classList.toggle('hidden', view !== 'clients');
         settingsView.classList.toggle('hidden', view !== 'settings');
-        if (isContent) renderContentEditor();
+        if (isWebsiteEditor) renderContentEditor();
     });
 });
 
@@ -2129,7 +2134,19 @@ function updateDashboard() {
     if (photos) photos.textContent = state.photos.length;
 }
 
-document.querySelector('[data-view="dashboard"]').click();
+document.querySelector('[data-view="database"]').click();
+
+if (livePreview) {
+    livePreview.addEventListener('load', function () {
+        postPreview(state.siteContent);
+    });
+}
+
+function postPreview(content) {
+    if (livePreview && livePreview.contentWindow) {
+        livePreview.contentWindow.postMessage({ type: 'nelli-preview-content', content: content }, window.location.origin);
+    }
+}
 
 function contentFieldMarkup(key, label, lang, value) {
     const long = /Text|description|message|sent|Error|validation/i.test(key);
@@ -2157,6 +2174,7 @@ function renderContentEditor() {
         input.checked = state.siteContent.sections[input.getAttribute('data-section-toggle')] !== false;
     });
     bindDynamicContentInputs();
+    postPreview(state.siteContent);
 }
 
 function renderSocialFields() {
@@ -2179,6 +2197,14 @@ function renderServiceFields() {
 function bindDynamicContentInputs() {
     document.getElementById('saveDraftButton').onclick = function () { saveSiteContent(false); };
     document.getElementById('publishContentButton').onclick = function () { saveSiteContent(true); };
+    contentEditor.querySelectorAll('input, textarea, select').forEach(function (input) {
+        input.addEventListener('input', function () {
+            postPreview(collectSiteContent());
+        });
+        input.addEventListener('change', function () {
+            postPreview(collectSiteContent());
+        });
+    });
 }
 
 function collectSiteContent() {

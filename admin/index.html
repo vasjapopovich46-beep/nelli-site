@@ -163,7 +163,9 @@
         </div>
 
         <nav class="admin-nav" aria-label="Admin sections">
-            <button type="button" class="admin-nav-button active" data-view="dashboard">Dashboard</button>
+            <button type="button" class="admin-nav-button active" data-view="database">БАЗА ДАНИХ</button>
+            <button type="button" class="admin-nav-button" data-view="website-editor">РЕДАГУВАННЯ САЙТУ</button>
+            <button type="button" class="admin-nav-button" data-view="clients">Clients</button>
             <button type="button" class="admin-nav-button" data-view="calendar">Calendar</button>
             <button type="button" class="admin-nav-button" data-view="portfolio">Portfolio</button>
             <button type="button" class="admin-nav-button" data-view="content">Content</button>
@@ -191,6 +193,15 @@
                 <button class="outline-button" type="button" disabled>Previous</button>
                 <strong>Existing Google Sheets integration required</strong>
                 <button class="outline-button" type="button" disabled>Next</button>
+            </div>
+        </section>
+
+        <section id="clientsView" class="admin-status-panel hidden" aria-labelledby="clientsTitle">
+            <div class="eyebrow">DATABASE · CLIENTS</div>
+            <h2 id="clientsTitle">Клієнти</h2>
+            <p class="calendar-blocker">Verified client records не повертаються жодним доступним Apps Script action. Порожній стан показано навмисно, без fake clients.</p>
+            <div class="database-table" role="table" aria-label="Clients database">
+                <div>Name</div><div>Phone</div><div>Email</div><div>Sessions</div><div>Last session</div><div>Status</div>
             </div>
         </section>
 
@@ -243,6 +254,11 @@
                     <button id="saveDraftButton" class="outline-button" type="button">Save draft</button>
                     <button id="publishContentButton" class="gold-button" type="button">Publish</button>
                 </div>
+            </div>
+
+            <div class="preview-panel">
+                <div class="section-heading">LIVE PREVIEW</div>
+                <iframe id="livePreview" title="Public site live preview" src="../index.html?preview=1" loading="lazy"></iframe>
             </div>
         </section>
 
