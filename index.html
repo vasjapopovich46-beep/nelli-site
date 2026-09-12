@@ -76,7 +76,7 @@
 
             <a
                 href="#contact"
-                class="hero-button"
+                class="hero-button button"
                 data-t="heroButton"
             >
                 Забронювати зйомку
@@ -105,11 +105,8 @@
 
             <div class="about-grid">
 
-                <div class="about-image image-placeholder">
-                    <div class="placeholder-inner">
-                        <span>NELLI</span>
-                        <small>PHOTOGRAPHY</small>
-                    </div>
+                <div class="about-photo">
+                    <img src="assets/images/about.jpg" alt="Nelli" id="aboutImage">
                 </div>
 
                 <div class="about-content">
@@ -172,62 +169,42 @@
 
             </div>
 
-
             <div class="portfolio-grid">
 
-                <article class="portfolio-item portfolio-large">
-                    <div class="portfolio-placeholder">
-                        <span>01</span>
-                    </div>
-
+                <article class="work big">
+                    <img src="assets/images/portfolio-1.jpg" loading="lazy">
                     <div class="portfolio-info">
                         <span data-t="wedding">Весілля</span>
                         <strong data-t="weddingWork">Цей день</strong>
                     </div>
                 </article>
 
-
-                <article class="portfolio-item portfolio-tall">
-                    <div class="portfolio-placeholder">
-                        <span>02</span>
-                    </div>
-
+                <article class="work tall">
+                    <img src="assets/images/portfolio-2.jpg" loading="lazy">
                     <div class="portfolio-info">
                         <span data-t="love">Історія кохання</span>
                         <strong data-t="loveWork">Тільки ми</strong>
                     </div>
                 </article>
 
-
-                <article class="portfolio-item">
-                    <div class="portfolio-placeholder">
-                        <span>03</span>
-                    </div>
-
+                <article class="work">
+                    <img src="assets/images/portfolio-3.jpg" loading="lazy">
                     <div class="portfolio-info">
                         <span data-t="portrait">Портрет</span>
                         <strong data-t="portraitWork">Її історія</strong>
                     </div>
                 </article>
 
-
-                <article class="portfolio-item">
-                    <div class="portfolio-placeholder">
-                        <span>04</span>
-                    </div>
-
+                <article class="work">
+                    <img src="assets/images/portfolio-4.jpg" loading="lazy">
                     <div class="portfolio-info">
                         <span data-t="couple">Пара</span>
                         <strong data-t="coupleWork">Разом</strong>
                     </div>
                 </article>
 
-
-                <article class="portfolio-item">
-                    <div class="portfolio-placeholder">
-                        <span>05</span>
-                    </div>
-
+                <article class="work">
+                    <img src="assets/images/portfolio-5.jpg" loading="lazy">
                     <div class="portfolio-info">
                         <span data-t="portrait">Портрет</span>
                         <strong data-t="youWork">Ти</strong>
@@ -261,7 +238,6 @@
 
             </div>
 
-
             <div class="services-list">
 
                 <article class="service">
@@ -278,7 +254,6 @@
                     <span class="service-arrow">↗</span>
                 </article>
 
-
                 <article class="service">
                     <div class="service-number">02</div>
 
@@ -292,7 +267,6 @@
 
                     <span class="service-arrow">↗</span>
                 </article>
-
 
                 <article class="service">
                     <div class="service-number">03</div>
@@ -343,17 +317,12 @@
                     </p>
 
                     <div class="contact-details">
-                        <a href="mailto:nelli@example.com">
-                            nelli@example.com
-                        </a>
+                        <a href="#" id="contactEmail">nelli@example.com</a>
 
-                        <a href="tel:+420000000000">
-                            +420 000 000 000
-                        </a>
+                        <a href="#" id="contactPhone">+420 000 000 000</a>
                     </div>
 
                 </div>
-
 
                 <form
                     class="booking-form"
@@ -381,7 +350,6 @@
                             >
                         </div>
 
-
                         <div class="field">
                             <label
                                 for="phone"
@@ -403,7 +371,6 @@
 
                     </div>
 
-
                     <div class="field">
                         <label
                             for="email"
@@ -422,7 +389,6 @@
                         >
                     </div>
 
-
                     <div class="field">
                         <label
                             for="message"
@@ -439,7 +405,6 @@
                             placeholder="Розкажіть про вашу зйомку..."
                         ></textarea>
                     </div>
-
 
                     <div class="form-footer">
 
@@ -470,7 +435,6 @@
 
 </main>
 
-
 <footer class="footer">
 
     <div class="footer-inner">
@@ -490,6 +454,15 @@
 
 </footer>
 
+<!-- LIGHTBOX -->
+<div id="lightbox" class="lightbox hidden" aria-hidden="true">
+    <div class="lightbox-backdrop" data-close></div>
+    <div class="lightbox-content">
+        <button class="lightbox-close" aria-label="Close" data-close>✕</button>
+        <img id="lightboxImage" src="" alt="">
+        <div id="lightboxCaption" class="lightbox-caption"></div>
+    </div>
+</div>
 
 <script src="script.js"></script>
 
