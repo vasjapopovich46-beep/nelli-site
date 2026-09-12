@@ -162,6 +162,58 @@
 
         </div>
 
+        <nav class="admin-nav" aria-label="Admin sections">
+            <button type="button" class="admin-nav-button active" data-view="portfolio">Portfolio</button>
+            <button type="button" class="admin-nav-button" data-view="content">Content</button>
+            <button type="button" class="admin-nav-button" data-view="services">Services</button>
+            <button type="button" class="admin-nav-button" data-view="social">Social & SEO</button>
+        </nav>
+
+        <section id="contentEditor" class="content-editor hidden" aria-labelledby="contentEditorTitle">
+            <div class="editor-header">
+                <div>
+                    <div class="eyebrow">SITE CONTENT</div>
+                    <h2 id="contentEditorTitle">Публічний сайт</h2>
+                </div>
+                <div id="contentStatus" class="editor-status" aria-live="polite"></div>
+            </div>
+
+            <div id="contentFields" class="content-fields"></div>
+
+            <div class="content-settings-grid">
+                <div class="form-section">
+                    <div class="section-heading">Media</div>
+                    <div class="field"><label for="heroImageUrl">Hero image URL</label><input id="heroImageUrl" type="url" placeholder="https://... or assets/images/..." autocomplete="off"></div>
+                    <div class="field"><label for="aboutImageUrl">About image URL</label><input id="aboutImageUrl" type="url" placeholder="https://... or assets/images/..." autocomplete="off"></div>
+                    <div class="field"><label for="heroLink">Hero CTA link</label><input id="heroLink" type="text" placeholder="#contact or https://..." autocomplete="off"></div>
+                </div>
+                <div class="form-section">
+                    <div class="section-heading">SEO</div>
+                    <div class="field"><label for="seoTitle">Title</label><input id="seoTitle" type="text"></div>
+                    <div class="field"><label for="seoDescription">Description</label><textarea id="seoDescription"></textarea></div>
+                    <div class="field"><label for="ogImage">Open Graph image URL</label><input id="ogImage" type="url"></div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <div class="section-heading">Visibility</div>
+                <div class="visibility-grid">
+                    <label><input type="checkbox" data-section-toggle="about" checked> About</label>
+                    <label><input type="checkbox" data-section-toggle="portfolio" checked> Portfolio</label>
+                    <label><input type="checkbox" data-section-toggle="services" checked> Services</label>
+                    <label><input type="checkbox" data-section-toggle="contact" checked> Contact</label>
+                </div>
+            </div>
+
+            <div class="content-save-bar">
+                <span id="contentSaveHint" class="save-hint">Зміни зберігаються через Apps Script API.</span>
+                <div class="save-actions">
+                    <button id="saveDraftButton" class="outline-button" type="button">Save draft</button>
+                    <button id="publishContentButton" class="gold-button" type="button">Publish</button>
+                </div>
+            </div>
+        </section>
+
 
         <div class="toolbar">
 
@@ -651,6 +703,7 @@
 </div>
 
 
+<script src="../content-model.js"></script>
 <script src="admin.js?v=20260901"></script>
 
 </body>

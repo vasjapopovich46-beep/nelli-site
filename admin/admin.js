@@ -2,10 +2,6 @@ const API_URL =
     "https://script.google.com/macros/s/AKfycbxmJELRpugwDjDo_MOlppUq1VZrt1101d_E68XOTUTpUOkVVvlwmLOZA-zilNhRoxc3/exec";
 
 
-const ADMIN_KEY =
-    "Admin Nelli";
-
-
 const TOKEN_KEY =
     "nelli-admin-token";
 
@@ -18,6 +14,10 @@ const state = {
 
     photos: [],
 
+    siteContent: window.NelliContentModel
+        ? window.NelliContentModel.emptyContent()
+        : null,
+
     currentId: null,
 
     isNew: false
@@ -26,57 +26,9 @@ const state = {
 
 
 /* =========================================================
-   ELEMENTS
-========================================================= */
-
-const loginScreen =
-    document.getElementById("loginScreen");
-
-const app =
-    document.getElementById("app");
-
-const loginForm =
-    document.getElementById("loginForm");
-
-const adminToken =
-    document.getElementById("adminToken");
-
-const loginButton =
-    document.getElementById("loginButton");
-
-const loginMessage =
-    document.getElementById("loginMessage");
-
-const globalMessage =
-    document.getElementById("globalMessage");
-
 const logoutButton =
-    document.getElementById("logoutButton");
-
-const sessionsList =
-    document.getElementById("sessionsList");
-
-const sessionSearch =
-    document.getElementById("sessionSearch");
-
-const sessionCount =
-    document.getElementById("sessionCount");
-
-const newSessionButton =
-    document.getElementById("newSessionButton");
-
-const emptyCreateButton =
-    document.getElementById("emptyCreateButton");
-
-const emptyState =
-    document.getElementById("emptyState");
-
-const editor =
-    document.getElementById("editor");
-
-const editorTitle =
     document.getElementById("editorTitle");
-
+            entered;
 const editorStatus =
     document.getElementById("editorStatus");
 
@@ -139,38 +91,13 @@ function login() {
     );
 
 
-    /*
-     * Спочатку перевіряємо ключ ЛОКАЛЬНО.
-     * Це прибирає проблему, коли телефон
-     * не може одразу виконати API-запит.
-     */
-
-    if (
-        entered !== ADMIN_KEY
-    ) {
-
-        loginButton.disabled =
-            false;
-
-
-        setMessage(
-            loginMessage,
-            "Ключ введено неправильно."
-        );
-
-
-        return;
-
-    }
-
-
     state.token =
-        ADMIN_KEY;
+        entered;
 
 
     sessionStorage.setItem(
         TOKEN_KEY,
-        ADMIN_KEY
+        entered
     );
 
 
@@ -416,8 +343,15 @@ function loadData() {
                                 ? data.photos
                                 : [];
 
+                        if (window.NelliContentModel) {
+                            state.siteContent = window.NelliContentModel.mergeContent(
+                                data.siteContent || data.content || state.siteContent
+                            );
+                        }
+
 
                         renderSessions();
+                        renderContentEditor();
 
 
                         if (
@@ -2220,6 +2154,139 @@ function escapeHtml(
 
 }
 
+const adminViewButtons = Array.from(document.querySelectorAll('[data-view]'));
+const contentEditor = document.getElementById('contentEditor');
+const contentFields = document.getElementById('contentFields');
+const contentStatus = document.getElementById('contentStatus');
+
+adminViewButtons.forEach(function (button) {
+    button.addEventListener('click', function () {
+        const view = button.getAttribute('data-view');
+        adminViewButtons.forEach(function (item) {
+            item.classList.toggle('active', item === button);
+        });
+        const isContent = view !== 'portfolio';
+        contentEditor.classList.toggle('hidden', !isContent);
+        document.querySelector('.toolbar').classList.toggle('hidden', isContent);
+        document.querySelector('.admin-layout').classList.toggle('hidden', isContent);
+        if (isContent) renderContentEditor();
+    });
+});
+
+function contentFieldMarkup(key, label, lang, value) {
+    const long = /Text|description|message|sent|Error|validation/i.test(key);
+    return '<div class="cms-field"><label for="cms-' + key + '-' + lang + '">' + escapeHtml(label) + ' <span>' + lang.toUpperCase() + '</span></label>' + (long ? '<textarea id="cms-' + key + '-' + lang + '" data-content-key="' + key + '" data-content-lang="' + lang + '">' + escapeHtml(value) + '</textarea>' : '<input id="cms-' + key + '-' + lang + '" data-content-key="' + key + '" data-content-lang="' + lang + '" value="' + escapeHtml(value) + '">') + '</div>';
+}
+
+function renderContentEditor() {
+    if (!contentFields || !window.NelliContentModel || !state.siteContent) return;
+    const translations = state.siteContent.translations || {};
+    contentFields.innerHTML = window.NelliContentModel.fields.map(function (field) {
+        const key = field[0];
+        const label = field[1];
+        return '<div class="cms-language-group"><h3>' + escapeHtml(label) + '</h3><div class="cms-language-grid">' + window.NelliContentModel.languages.map(function (lang) {
+            return contentFieldMarkup(key, label, lang, translations[lang] && translations[lang][key] || '');
+        }).join('') + '</div></div>';
+    }).join('') + renderSocialFields() + renderServiceFields();
+
+    setValue('heroImageUrl', state.siteContent.media.heroUrl);
+    setValue('aboutImageUrl', state.siteContent.media.aboutUrl);
+    setValue('heroLink', state.siteContent.links && state.siteContent.links.hero);
+    setValue('seoTitle', state.siteContent.seo.title);
+    setValue('seoDescription', state.siteContent.seo.description);
+    setValue('ogImage', state.siteContent.seo.ogImage);
+    document.querySelectorAll('[data-section-toggle]').forEach(function (input) {
+        input.checked = state.siteContent.sections[input.getAttribute('data-section-toggle')] !== false;
+    });
+    bindDynamicContentInputs();
+}
+
+function renderSocialFields() {
+    return '<div class="cms-language-group"><h3>Social links</h3>' + (state.siteContent.social || []).map(function (social) {
+        return '<div class="social-admin-row"><label>' + escapeHtml(social.id) + ' URL<input data-social-id="' + escapeHtml(social.id) + '" data-social-field="url" type="url" value="' + escapeHtml(social.url || '') + '"></label><label>Label key<input data-social-id="' + escapeHtml(social.id) + '" data-social-field="labelKey" value="' + escapeHtml(social.labelKey || '') + '"></label><label><input data-social-id="' + escapeHtml(social.id) + '" data-social-field="visible" type="checkbox" ' + (social.visible !== false ? 'checked' : '') + '> Visible</label></div>';
+    }).join('') + '</div>';
+}
+
+function renderServiceFields() {
+    const services = state.siteContent.services || [];
+    if (!services.length) return '<div class="cms-language-group"><h3>Services</h3><p class="field-help">Services can be supplied by the backend in the services array.</p></div>';
+    return '<div class="cms-language-group"><h3>Services</h3>' + services.map(function (service, index) {
+        return '<div class="service-admin-row"><label>Number<input data-service-index="' + index + '" data-service-field="number" value="' + escapeHtml(service.number || index + 1) + '"></label><label>Order<input data-service-index="' + index + '" data-service-field="order" type="number" value="' + escapeHtml(service.order || index + 1) + '"></label>' + window.NelliContentModel.languages.map(function (lang) {
+            const value = service.translations && service.translations[lang] || {};
+            return '<div class="service-language"><strong>' + lang.toUpperCase() + '</strong><input data-service-index="' + index + '" data-service-lang="' + lang + '" data-service-field="title" placeholder="Title" value="' + escapeHtml(value.title || '') + '"><textarea data-service-index="' + index + '" data-service-lang="' + lang + '" data-service-field="description" placeholder="Description">' + escapeHtml(value.description || '') + '</textarea></div>';
+        }).join('') + '</div>';
+    }).join('') + '</div>';
+}
+
+function bindDynamicContentInputs() {
+    document.getElementById('saveDraftButton').onclick = function () { saveSiteContent(false); };
+    document.getElementById('publishContentButton').onclick = function () { saveSiteContent(true); };
+}
+
+function collectSiteContent() {
+    const content = window.NelliContentModel.mergeContent(state.siteContent);
+    content.translations = window.NelliContentModel.languages.reduce(function (result, lang) {
+        result[lang] = {};
+        document.querySelectorAll('[data-content-key][data-content-lang="' + lang + '"]').forEach(function (input) {
+            result[lang][input.getAttribute('data-content-key')] = input.value.trim();
+        });
+        return result;
+    }, {});
+    content.media.heroUrl = getValue('heroImageUrl');
+    content.media.aboutUrl = getValue('aboutImageUrl');
+    content.links.hero = getValue('heroLink') || '#contact';
+    content.seo.title = getValue('seoTitle');
+    content.seo.description = getValue('seoDescription');
+    content.seo.ogTitle = content.seo.title;
+    content.seo.ogDescription = content.seo.description;
+    content.seo.ogImage = getValue('ogImage');
+    document.querySelectorAll('[data-section-toggle]').forEach(function (input) {
+        content.sections[input.getAttribute('data-section-toggle')] = input.checked;
+    });
+    content.social = (content.social || []).map(function (social) {
+        document.querySelectorAll('[data-social-id="' + social.id + '"]').forEach(function (input) {
+            if (input.getAttribute('data-social-field') === 'visible') social.visible = input.checked;
+            else social[input.getAttribute('data-social-field')] = input.value.trim();
+        });
+        return social;
+    });
+    content.services = (content.services || []).map(function (service, index) {
+        const result = Object.assign({}, service, {
+            number: service.number || String(index + 1).padStart(2, '0'),
+            order: service.order || index + 1,
+            translations: Object.assign({}, service.translations || {})
+        });
+        document.querySelectorAll('[data-service-index="' + index + '"]').forEach(function (input) {
+            const field = input.getAttribute('data-service-field');
+            const lang = input.getAttribute('data-service-lang');
+            if (lang) {
+                result.translations[lang] = Object.assign({}, result.translations[lang] || {}, { [field]: input.value.trim() });
+            } else if (field === 'order') {
+                result.order = Number(input.value || index + 1);
+            } else if (field) {
+                result[field] = input.value.trim();
+            }
+        });
+        return result;
+    });
+    content.published = false;
+    return content;
+}
+
+function saveSiteContent(publish) {
+    const content = collectSiteContent();
+    content.published = publish;
+    setMessage(contentStatus, publish ? 'Publishing...' : 'Saving draft...');
+    postAdmin({ action: publish ? 'publishSiteContent' : 'saveSiteContent', content: content })
+        .then(function () {
+            state.siteContent = content;
+            setMessage(contentStatus, publish ? 'Publish request sent. ✓' : 'Draft request sent. ✓');
+        })
+        .catch(function (error) {
+            setMessage(contentStatus, error.message || 'Content API error.');
+        });
+}
+
 
 /* =========================================================
    START
@@ -2238,12 +2305,10 @@ function escapeHtml(
         );
 
 
-    if (
-        saved === ADMIN_KEY
-    ) {
+    if (saved) {
 
         state.token =
-            ADMIN_KEY;
+            saved;
 
 
         loadData()

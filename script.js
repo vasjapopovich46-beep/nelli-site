@@ -2,6 +2,12 @@
 const GOOGLE_SCRIPT_URL =
     "https://script.google.com/macros/s/AKfycbxmJELRpugwDjDo_MOlppUq1VZrt1101d_E68XOTUTpUOkVVvlwmLOZA-zilNhRoxc3/exec";
 
+const PUBLIC_CONTENT_URL = GOOGLE_SCRIPT_URL;
+
+let SITE_CONTENT = window.NelliContentModel
+    ? window.NelliContentModel.emptyContent()
+    : { translations: {}, media: {}, seo: {}, sections: {}, social: [], services: [], portfolio: [] };
+
 // Translations (keys used in data-t / data-placeholder)
 const TRANSLATIONS = {
     uk: {
@@ -321,7 +327,10 @@ function applyTranslations(lang) {
     });
 
     // update footer copy
-    el('meta[name="description"]').setAttribute('content', map.heroText || TRANSLATIONS.uk.heroText);
+    const descriptionMeta = el('meta[name="description"]');
+    if (descriptionMeta) {
+        descriptionMeta.setAttribute('content', map.heroText || TRANSLATIONS.uk.heroText);
+    }
 
     // update image alts from sibling portfolio-info (so alt reflects translated labels)
     els('.work').forEach(function (work) {
@@ -340,6 +349,8 @@ function applyTranslations(lang) {
     els('.lang').forEach(function (btn) {
         btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
     });
+
+    renderServices();
 }
 
 function getInitialLang() {
@@ -357,6 +368,188 @@ function setLang(lang) {
     if (!TRANSLATIONS[lang]) return;
     localStorage.setItem('nelli-lang', lang);
     applyTranslations(lang);
+}
+
+function localizedValue(value, lang) {
+    if (value && typeof value === 'object') {
+        return value[lang] || value.uk || value.en || '';
+    }
+    return value || '';
+}
+
+function publicImageUrl(value) {
+    if (!value) return '';
+    if (String(value).startsWith('http') || String(value).startsWith('assets/')) return value;
+    return 'https://drive.google.com/uc?export=view&id=' + encodeURIComponent(value);
+}
+
+function normalizePublicData(data) {
+    const candidate = data && (data.siteContent || data.content);
+    if (candidate && window.NelliContentModel) {
+        return window.NelliContentModel.mergeContent(candidate);
+    }
+
+    const sessions = Array.isArray(data && data.sessions) ? data.sessions : [];
+    const photos = Array.isArray(data && data.photos) ? data.photos : [];
+    if (!sessions.length) return null;
+
+    const portfolio = photos.map(function (photo, index) {
+        const session = sessions.find(function (item) {
+            return String(item.ID) === String(photo['Session ID']);
+        }) || {};
+        const title = {
+            uk: session['Назва UA'] || photo['Назва'] || 'Portfolio',
+            ru: session['Назва RU'] || session['Назва UA'] || photo['Назва'] || 'Portfolio',
+            en: session['Назва EN'] || session['Назва UA'] || photo['Назва'] || 'Portfolio',
+            cz: session['Назва CZ'] || session['Назва UA'] || photo['Назва'] || 'Portfolio'
+        };
+        const fileId = photo['File ID'] || photo.imageUrl || photo.url || '';
+        return {
+            id: photo.ID || 'photo-' + index,
+            imageUrl: publicImageUrl(fileId),
+            title: title,
+            category: session['Категорія'] || 'portrait',
+            alt: title,
+            order: Number(photo['Порядок'] || index + 1),
+            published: String(session['Активна']).toLowerCase() !== 'false',
+            cover: String(session['Обкладинка'] || '').includes(String(fileId))
+        };
+    });
+
+    const content = window.NelliContentModel
+        ? window.NelliContentModel.emptyContent()
+        : { portfolio: [] };
+    content.portfolio = portfolio;
+    return content;
+}
+
+function renderServices() {
+    const list = el('.services-list');
+    if (!list || !Array.isArray(SITE_CONTENT.services) || !SITE_CONTENT.services.length) return;
+    if (!SITE_CONTENT.services.some(function (service) {
+        return service.title || (service.translations && Object.keys(service.translations).some(function (lang) {
+            return service.translations[lang] && (service.translations[lang].title || service.translations[lang].description);
+        }));
+    })) return;
+    const lang = localStorage.getItem('nelli-lang') || 'uk';
+    const services = SITE_CONTENT.services.filter(function (service) {
+        return service.visible !== false;
+    }).sort(function (a, b) {
+        return Number(a.order || a.number || 0) - Number(b.order || b.number || 0);
+    });
+    list.innerHTML = services.map(function (service, index) {
+        const title = localizedValue(service.title || (service.translations && service.translations[lang] && service.translations[lang].title), lang);
+        const description = localizedValue(service.description || (service.translations && service.translations[lang] && service.translations[lang].description), lang);
+        return '<article class="service"><div class="service-number">' + escapePublic(service.number || String(index + 1).padStart(2, '0')) + '</div><div class="service-main"><h3>' + escapePublic(title) + '</h3><p>' + escapePublic(description) + '</p></div><span class="service-arrow">↗</span></article>';
+    }).join('');
+}
+
+function renderPortfolio() {
+    const grid = el('.portfolio-grid');
+    if (!grid || !Array.isArray(SITE_CONTENT.portfolio) || !SITE_CONTENT.portfolio.length) return;
+    const lang = localStorage.getItem('nelli-lang') || 'uk';
+    const items = SITE_CONTENT.portfolio.filter(function (item) {
+        return item.published !== false && publicImageUrl(item.imageUrl || item.url || item.fileId);
+    }).sort(function (a, b) {
+        return Number(a.order || 0) - Number(b.order || 0);
+    });
+    if (!items.length) return;
+
+    grid.innerHTML = items.map(function (item, index) {
+        const title = localizedValue(item.title, lang) || 'Portfolio';
+        const category = localizedValue(item.category, lang) || '';
+        const classes = index === 0 ? 'work big' : index === 1 ? 'work tall' : 'work';
+        return '<div class="' + classes + '" data-index="' + (index + 1) + '"><img src="' + escapePublic(publicImageUrl(item.imageUrl || item.url || item.fileId)) + '" alt="' + escapePublic(localizedValue(item.alt || item.title, lang)) + '"><div class="portfolio-info"><span>' + escapePublic(category) + '</span><strong>' + escapePublic(title) + '</strong></div></div>';
+    }).join('');
+}
+
+function escapePublic(value) {
+    return String(value || '').replace(/[&<>'"]/g, function (character) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[character];
+    });
+}
+
+function applySiteContent(content) {
+    SITE_CONTENT = window.NelliContentModel
+        ? window.NelliContentModel.mergeContent(content)
+        : content;
+
+    Object.keys(SITE_CONTENT.translations || {}).forEach(function (lang) {
+        if (TRANSLATIONS[lang]) {
+            TRANSLATIONS[lang] = Object.assign({}, TRANSLATIONS[lang], SITE_CONTENT.translations[lang]);
+        }
+    });
+
+    const media = SITE_CONTENT.media || {};
+    const hero = el('.hero');
+    const aboutPhoto = el('#aboutPhoto');
+    if (hero && media.heroUrl) hero.style.backgroundImage = 'url("' + escapePublic(media.heroUrl) + '")';
+    if (aboutPhoto && media.aboutUrl) {
+        aboutPhoto.hidden = false;
+        aboutPhoto.src = media.aboutUrl;
+    }
+    const heroLink = el('.hero-button');
+    if (heroLink && SITE_CONTENT.links && SITE_CONTENT.links.hero) heroLink.href = SITE_CONTENT.links.hero;
+
+    Object.keys(SITE_CONTENT.sections || {}).forEach(function (section) {
+        const node = el('[data-section="' + section + '"]');
+        if (node) node.hidden = SITE_CONTENT.sections[section] === false;
+    });
+
+    (SITE_CONTENT.social || []).forEach(function (social) {
+        els('[data-social="' + social.id + '"]').forEach(function (link) {
+            link.hidden = social.visible === false;
+            if (social.url) link.href = social.url;
+            if (social.label) link.textContent = localizedValue(social.label, localStorage.getItem('nelli-lang') || 'uk');
+        });
+    });
+
+    const seo = SITE_CONTENT.seo || {};
+    if (seo.title) document.title = seo.title;
+    const description = el('meta[name="description"]');
+    const ogTitle = el('meta[property="og:title"]');
+    const ogDescription = el('meta[property="og:description"]');
+    const ogImage = el('meta[property="og:image"]');
+    if (description && seo.description) description.content = seo.description;
+    if (ogTitle && seo.ogTitle) ogTitle.content = seo.ogTitle;
+    if (ogDescription && seo.ogDescription) ogDescription.content = seo.ogDescription;
+    if (ogImage && seo.ogImage) ogImage.content = seo.ogImage;
+
+    renderPortfolio();
+    initImageFallbacks();
+    applyTranslations(localStorage.getItem('nelli-lang') || 'uk');
+}
+
+function loadPublicContent() {
+    return new Promise(function (resolve, reject) {
+        const callbackName = '__nelliPublicContent_' + Date.now();
+        const script = document.createElement('script');
+        const timeout = setTimeout(function () {
+            cleanup();
+            reject(new Error('Public content API timeout'));
+        }, 5000);
+        function cleanup() {
+            clearTimeout(timeout);
+            delete window[callbackName];
+            if (script.parentNode) script.parentNode.removeChild(script);
+        }
+        window[callbackName] = function (data) {
+            cleanup();
+            const content = normalizePublicData(data);
+            if (!content) {
+                reject(new Error((data && data.error) || 'No public content returned'));
+                return;
+            }
+            applySiteContent(content);
+            resolve(content);
+        };
+        script.onerror = function () {
+            cleanup();
+            reject(new Error('Public content API unavailable'));
+        };
+        script.src = PUBLIC_CONTENT_URL + '?action=publicData&callback=' + encodeURIComponent(callbackName) + '&_=' + Date.now();
+        document.body.appendChild(script);
+    });
 }
 
 
@@ -450,7 +643,8 @@ function initLightbox() {
     els('.work').forEach(function (work) {
         const img = work.querySelector('img');
         const info = work.querySelector('.portfolio-info');
-        if (img) {
+        if (img && !img.dataset.lightboxReady) {
+            img.dataset.lightboxReady = 'true';
             img.style.cursor = 'pointer';
             img.setAttribute('tabindex', '0');
             img.addEventListener('click', function () {
@@ -617,9 +811,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const initial = getInitialLang();
     setLang(initial);
 
-    // init lightbox
-    initLightbox();
-
     // init form
     initForm();
 
@@ -627,5 +818,11 @@ document.addEventListener('DOMContentLoaded', function () {
     initMobileNav();
 
     initImageFallbacks();
+
+    loadPublicContent().catch(function () {
+        initLightbox();
+    }).then(function () {
+        initLightbox();
+    });
 
 });

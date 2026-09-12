@@ -1361,3 +1361,191 @@ textarea {
     }
 
 }
+
+.admin-nav {
+    display: flex;
+    gap: 8px;
+    margin: 0 0 22px;
+    border-bottom: 1px solid var(--line);
+}
+
+.admin-nav-button {
+    padding: 12px 15px;
+    border: 0;
+    border-bottom: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.admin-nav-button:hover,
+.admin-nav-button.active {
+    border-bottom-color: var(--gold);
+    color: var(--gold);
+}
+
+.content-editor {
+    padding: 35px;
+    border: 1px solid var(--line);
+    background: rgba(255,255,255,.012);
+}
+
+.content-fields,
+.content-settings-grid {
+    display: grid;
+    gap: 18px;
+}
+
+.content-settings-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 28px;
+}
+
+.cms-language-group {
+    padding: 20px;
+    border: 1px solid rgba(255,255,255,.07);
+    background: #0b0b0b;
+}
+
+.cms-language-group h3 {
+    margin: 0 0 18px;
+    color: var(--gold);
+    font-family: var(--serif);
+    font-size: 25px;
+    font-weight: 400;
+}
+
+.cms-language-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.cms-field label,
+.social-admin-row label,
+.service-admin-row label {
+    display: block;
+    color: #87827a;
+    font-size: 8px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.cms-field label span {
+    float: right;
+    color: var(--gold);
+}
+
+.cms-field input,
+.cms-field textarea,
+.social-admin-row input,
+.service-admin-row input,
+.service-admin-row textarea {
+    margin-top: 7px;
+    padding: 10px;
+    font-size: 11px;
+}
+
+.cms-field textarea,
+.service-admin-row textarea {
+    min-height: 86px;
+}
+
+.social-admin-row,
+.service-admin-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    padding: 15px 0;
+    border-bottom: 1px solid var(--line-light);
+}
+
+.service-admin-row {
+    grid-template-columns: 120px 120px 1fr;
+}
+
+.service-language {
+    display: grid;
+    grid-template-columns: 40px 1fr;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.service-language strong {
+    padding-top: 10px;
+    color: var(--gold);
+    font-size: 9px;
+}
+
+.service-language textarea {
+    grid-column: 2;
+}
+
+.visibility-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.visibility-grid label {
+    padding: 13px;
+    border: 1px solid var(--line-light);
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.visibility-grid input {
+    width: auto;
+    margin-right: 8px;
+}
+
+.content-save-bar {
+    position: sticky;
+    bottom: 15px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 15px 18px;
+    margin-top: 35px;
+    border: 1px solid var(--line);
+    background: rgba(12,12,12,.92);
+    backdrop-filter: blur(16px);
+}
+
+@media (max-width: 900px) {
+    .cms-language-grid,
+    .visibility-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .content-settings-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    .admin-nav {
+        overflow-x: auto;
+    }
+    .admin-nav-button {
+        flex: 0 0 auto;
+        padding-right: 10px;
+        padding-left: 10px;
+    }
+    .content-editor {
+        padding: 23px 17px;
+    }
+    .cms-language-grid,
+    .visibility-grid,
+    .social-admin-row,
+    .service-admin-row {
+        grid-template-columns: 1fr;
+    }
+    .content-save-bar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+}
