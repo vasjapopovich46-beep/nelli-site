@@ -66,7 +66,12 @@ const TRANSLATIONS = {
         name: "Ваше ім'я",
         phone: "+420...",
         email: "email@example.com",
-        message: "Розкажіть про вашу зйомку..."
+        message: "Розкажіть про вашу зйомку...",
+
+        // Instagram
+        instagramNelli: "Instagram Nelli",
+        supportLabel: "Технічна підтримка",
+        supportButton: "Написати в Instagram"
     },
 
     ru: {
@@ -127,7 +132,11 @@ const TRANSLATIONS = {
         name: "Ваше имя",
         phone: "+420...",
         email: "email@example.com",
-        message: "Расскажите о вашей съёмке..."
+        message: "Расскажите о вашей съёмке...",
+
+        instagramNelli: "Instagram Nelli",
+        supportLabel: "Техническая поддержка",
+        supportButton: "Написать в Instagram"
     },
 
     en: {
@@ -188,7 +197,11 @@ const TRANSLATIONS = {
         name: "Your name",
         phone: "+420...",
         email: "email@example.com",
-        message: "Tell me about your session..."
+        message: "Tell me about your session...",
+
+        instagramNelli: "Nelli on Instagram",
+        supportLabel: "Technical Support",
+        supportButton: "Contact support on Instagram"
     },
 
     cz: {
@@ -249,7 +262,11 @@ const TRANSLATIONS = {
         name: "Vaše jméno",
         phone: "+420...",
         email: "email@example.com",
-        message: "Řekněte mi o svém focení..."
+        message: "Řekněte mi o svém focení...",
+
+        instagramNelli: "Nelli na Instagramu",
+        supportLabel: "Technická podpora",
+        supportButton: "Napsat na Instagram"
     }
 };
 
