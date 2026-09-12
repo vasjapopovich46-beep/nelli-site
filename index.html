@@ -9,7 +9,14 @@
         content="Nelli Photography — фотографія про людей, почуття та моменти."
     >
 
+    <meta property="og:title" content="Nelli Photography">
+    <meta property="og:description" content="Photography about people, feelings and unforgettable moments.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/images/about.jpg">
+
     <title>Nelli Photography</title>
+
+    <link rel="icon" href="assets/images/logo.png" type="image/png">
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -32,12 +39,23 @@
             <span class="logo-sub">PHOTOGRAPHY</span>
         </a>
 
-        <nav class="nav-links">
+        <nav class="nav-links" id="primary-navigation">
             <a href="#about" data-t="aboutNav">Про мене</a>
             <a href="#portfolio" data-t="portfolioNav">Портфоліо</a>
             <a href="#services" data-t="servicesNav">Послуги</a>
             <a href="#contact" data-t="contactNav">Контакти</a>
         </nav>
+
+        <button
+            class="nav-toggle"
+            type="button"
+            aria-label="Open menu"
+            aria-controls="primary-navigation"
+            aria-expanded="false"
+        >
+            <span></span>
+            <span></span>
+        </button>
 
         <div class="languages">
             <button class="lang active" data-lang="uk">UA</button>
@@ -106,7 +124,7 @@
             <div class="about-grid">
 
                 <div class="about-photo">
-                    <img src="assets/images/about.jpg" alt="" id="aboutPhoto">
+                    <img src="assets/images/about.jpg" alt="Nelli, photographer in Prague" id="aboutPhoto">
                 </div>
 
                 <div class="about-content">
@@ -173,7 +191,7 @@
             <div class="portfolio-grid">
 
                 <div class="work big" data-index="1" data-alt-key="wedding">
-                    <img src="assets/images/portfolio-1.jpg" alt=""/>
+                    <img src="assets/images/portfolio-1.jpg" alt="Wedding photography"/>
                     <div class="portfolio-info">
                         <span data-t="wedding">Весілля</span>
                         <strong data-t="weddingWork">Цей день</strong>
@@ -181,7 +199,7 @@
                 </div>
 
                 <div class="work tall" data-index="2" data-alt-key="love">
-                    <img src="assets/images/portfolio-2.jpg" alt=""/>
+                    <img src="assets/images/portfolio-2.jpg" alt="Love story photography"/>
                     <div class="portfolio-info">
                         <span data-t="love">Історія кохання</span>
                         <strong data-t="loveWork">Тільки ми</strong>
@@ -189,7 +207,7 @@
                 </div>
 
                 <div class="work" data-index="3" data-alt-key="portrait">
-                    <img src="assets/images/portfolio-3.jpg" alt=""/>
+                    <img src="assets/images/portfolio-3.jpg" alt="Portrait photography"/>
                     <div class="portfolio-info">
                         <span data-t="portrait">Портрет</span>
                         <strong data-t="portraitWork">Її історія</strong>
@@ -197,7 +215,7 @@
                 </div>
 
                 <div class="work" data-index="4" data-alt-key="couple">
-                    <img src="assets/images/portfolio-4.jpg" alt=""/>
+                    <img src="assets/images/portfolio-4.jpg" alt="Couple photography"/>
                     <div class="portfolio-info">
                         <span data-t="couple">Пара</span>
                         <strong data-t="coupleWork">Разом</strong>
@@ -205,7 +223,7 @@
                 </div>
 
                 <div class="work" data-index="5" data-alt-key="portrait">
-                    <img src="assets/images/portfolio-5.jpg" alt=""/>
+                    <img src="assets/images/portfolio-5.jpg" alt="Portrait photography"/>
                     <div class="portfolio-info">
                         <span data-t="portrait">Портрет</span>
                         <strong data-t="youWork">Ти</strong>
@@ -321,12 +339,11 @@
                     </p>
 
                     <div class="contact-details">
-                        <a href="mailto:nelli@example.com" id="contactEmail">
-                            nelli@example.com
+                        <a href="https://www.instagram.com/nelli_photo_prague/" target="_blank" rel="noopener noreferrer" data-t="instagramNelli">
+                            Instagram Nelli
                         </a>
-
-                        <a href="tel:+420000000000" id="contactPhone">
-                            +420 000 000 000
+                        <a href="https://www.instagram.com/paparazzi_praha/" target="_blank" rel="noopener noreferrer" data-t="supportButton">
+                            Технічна підтримка
                         </a>
                     </div>
 
@@ -464,9 +481,23 @@
             © 2026 Nelli Photography
         </div>
 
+        <div class="footer-links">
+            <a href="https://www.instagram.com/nelli_photo_prague/" target="_blank" rel="noopener noreferrer" data-t="instagramNelli">Instagram Nelli</a>
+            <a href="https://www.instagram.com/paparazzi_praha/" target="_blank" rel="noopener noreferrer" data-t="supportLabel">Technical Support</a>
+        </div>
+
     </div>
 
 </footer>
+
+<div class="lightbox hidden" id="lightbox" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Image preview">
+    <div class="lightbox-backdrop" data-close="true"></div>
+    <div class="lightbox-content">
+        <button class="lightbox-close" type="button" aria-label="Close image preview" data-close="true">×</button>
+        <img id="lightboxImage" src="" alt="">
+        <div class="lightbox-caption" id="lightboxCaption"></div>
+    </div>
+</div>
 
 
 <script src="script.js"></script>

@@ -2,9 +2,6 @@
 const GOOGLE_SCRIPT_URL =
     "https://script.google.com/macros/s/AKfycbxmJELRpugwDjDo_MOlppUq1VZrt1101d_E68XOTUTpUOkVVvlwmLOZA-zilNhRoxc3/exec";
 
-const CONTACT_EMAIL = "nelli@example.com"; // centralised, change here
-const CONTACT_PHONE = "+420 000 000 000"; // centralised, change here
-
 // Translations (keys used in data-t / data-placeholder)
 const TRANSLATIONS = {
     uk: {
@@ -59,6 +56,12 @@ const TRANSLATIONS = {
         emailLabel: "Електронна пошта",
         messageLabel: "Повідомлення",
         submit: "Надіслати заявку",
+        validationName: "Будь ласка, введіть ім'я.",
+        validationPhone: "Будь ласка, введіть телефон.",
+        validationEmail: "Неправильний формат email.",
+        sending: "Відправлення...",
+        sent: "Запит надіслано. Якщо ви не отримали підтвердження, перевірте налаштування backend.",
+        sendError: "Не вдалося відправити заявку. Потрібно налаштувати backend.",
 
         footer: "© 2026 Nelli Photography",
 
@@ -126,6 +129,12 @@ const TRANSLATIONS = {
         emailLabel: "Электронная почта",
         messageLabel: "Сообщение",
         submit: "Отправить заявку",
+        validationName: "Пожалуйста, введите имя.",
+        validationPhone: "Пожалуйста, введите телефон.",
+        validationEmail: "Неверный формат email.",
+        sending: "Отправка...",
+        sent: "Запрос отправлен. Если вы не получили подтверждение, проверьте настройки backend.",
+        sendError: "Не удалось отправить заявку. Необходимо настроить backend.",
 
         footer: "© 2026 Nelli Photography",
 
@@ -191,6 +200,12 @@ const TRANSLATIONS = {
         emailLabel: "Email",
         messageLabel: "Message",
         submit: "Send request",
+        validationName: "Please enter your name.",
+        validationPhone: "Please enter your phone number.",
+        validationEmail: "Please enter a valid email address.",
+        sending: "Sending...",
+        sent: "Request sent. If you did not receive confirmation, please check the backend settings.",
+        sendError: "The request could not be sent. The backend needs configuration.",
 
         footer: "© 2026 Nelli Photography",
 
@@ -256,6 +271,12 @@ const TRANSLATIONS = {
         emailLabel: "E-mail",
         messageLabel: "Zpráva",
         submit: "Odeslat žádost",
+        validationName: "Zadejte prosím své jméno.",
+        validationPhone: "Zadejte prosím telefon.",
+        validationEmail: "Zadejte prosím platný e-mail.",
+        sending: "Odesílání...",
+        sent: "Žádost byla odeslána. Pokud jste neobdrželi potvrzení, zkontrolujte nastavení backendu.",
+        sendError: "Žádost se nepodařilo odeslat. Backend vyžaduje konfiguraci.",
 
         footer: "© 2026 Nelli Photography",
 
@@ -295,24 +316,12 @@ function applyTranslations(lang) {
     els("[data-placeholder]").forEach(function (node) {
         const key = node.getAttribute("data-placeholder");
         if (!key) return;
-        const placeholder = map[key] ?? TRANSLATIONS.uk[key] ?? node.placeholder || "";
+        const placeholder = map[key] ?? TRANSLATIONS.uk[key] ?? node.placeholder ?? "";
         node.placeholder = placeholder;
     });
 
     // update footer copy
     el('meta[name="description"]').setAttribute('content', map.heroText || TRANSLATIONS.uk.heroText);
-
-    // update contact details
-    const emailEl = el('#contactEmail');
-    const phoneEl = el('#contactPhone');
-    if (emailEl) {
-        emailEl.href = 'mailto:' + CONTACT_EMAIL;
-        emailEl.textContent = CONTACT_EMAIL;
-    }
-    if (phoneEl) {
-        phoneEl.href = 'tel:' + CONTACT_PHONE.replace(/\s+/g, '');
-        phoneEl.textContent = CONTACT_PHONE;
-    }
 
     // update image alts from sibling portfolio-info (so alt reflects translated labels)
     els('.work').forEach(function (work) {
@@ -476,7 +485,7 @@ function showFormMessage(text, isError = false) {
     const elMsg = el('#formMessage');
     if (!elMsg) return;
     elMsg.textContent = text;
-    elMsg.style.color = isError ? '#f4b0a8' : '#c2e6c2';
+    elMsg.classList.toggle('is-error', isError);
 }
 
 async function submitForm(data) {
@@ -512,16 +521,18 @@ function initForm() {
         const email = (el('#email') || {}).value?.trim() || '';
         const message = (el('#message') || {}).value?.trim() || '';
 
+        const currentMap = TRANSLATIONS[localStorage.getItem('nelli-lang') || 'uk'];
+
         if (!name) {
-            showFormMessage(TRANSLATIONS[localStorage.getItem('nelli-lang') || 'uk'].name || 'Please enter name', true);
+            showFormMessage(currentMap.validationName, true);
             return;
         }
         if (!phone) {
-            showFormMessage(TRANSLATIONS[localStorage.getItem('nelli-lang') || 'uk'].phone || 'Please enter phone', true);
+            showFormMessage(currentMap.validationPhone, true);
             return;
         }
         if (!validateEmail(email)) {
-            showFormMessage('Неправильний формат email', true);
+            showFormMessage(currentMap.validationEmail, true);
             return;
         }
 
@@ -530,18 +541,18 @@ function initForm() {
         try {
             formSending = true;
             submitBtn.disabled = true;
-            showFormMessage('Відправлення...', false);
+            showFormMessage(currentMap.sending, false);
 
             // Use existing endpoint format (no-cors) to avoid breaking backend.
             await submitForm(payload);
 
             // With no-cors mode we cannot confirm backend success. Inform the user honestly.
-            showFormMessage('Запит надіслано. Якщо ви не отримали підтвердження, перевірте налаштування backend.', false);
+            showFormMessage(currentMap.sent, false);
             form.reset();
 
         } catch (err) {
             console.error('Form send error:', err);
-            showFormMessage('Не вдалося відправити заявку. Потрібно налаштувати backend (CORS / endpoint).', true);
+            showFormMessage(currentMap.sendError, true);
         } finally {
             formSending = false;
             submitBtn.disabled = false;
@@ -560,6 +571,7 @@ function initMobileNav() {
 
     toggle.addEventListener('click', function () {
         const open = body.classList.toggle('nav-open');
+        body.classList.toggle('no-scroll', open);
         toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
         // When menu opens, move focus into the first link
         if (open) {
@@ -573,9 +585,22 @@ function initMobileNav() {
         a.addEventListener('click', function () {
             if (body.classList.contains('nav-open')) {
                 body.classList.remove('nav-open');
+                body.classList.remove('no-scroll');
                 toggle.setAttribute('aria-expanded', 'false');
             }
         });
+    });
+}
+
+function initImageFallbacks() {
+    els('img').forEach(function (img) {
+        if (img.complete && img.naturalWidth === 0) {
+            img.hidden = true;
+            return;
+        }
+        img.addEventListener('error', function () {
+            img.hidden = true;
+        }, { once: true });
     });
 }
 
@@ -592,12 +617,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const initial = getInitialLang();
     setLang(initial);
 
-    // setup contact details
-    const emailEl = el('#contactEmail');
-    const phoneEl = el('#contactPhone');
-    if (emailEl) { emailEl.href = 'mailto:' + CONTACT_EMAIL; emailEl.textContent = CONTACT_EMAIL; }
-    if (phoneEl) { phoneEl.href = 'tel:' + CONTACT_PHONE.replace(/\s+/g, ''); phoneEl.textContent = CONTACT_PHONE; }
-
     // init lightbox
     initLightbox();
 
@@ -606,5 +625,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // mobile nav
     initMobileNav();
+
+    initImageFallbacks();
 
 });
