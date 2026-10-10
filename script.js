@@ -1,6 +1,5 @@
 // Configuration
-const GOOGLE_SCRIPT_URL =
-    "https://script.google.com/macros/s/AKfycbxmJELRpugwDjDo_MOlppUq1VZrt1101d_E68XOTUTpUOkVVvlwmLOZA-zilNhRoxc3/exec";
+const GOOGLE_SCRIPT_URL = String(window.NELLI_API_URL || "").trim();
 
 const PUBLIC_CONTENT_URL = GOOGLE_SCRIPT_URL;
 
@@ -32,6 +31,7 @@ const TRANSLATIONS = {
         portfolioEyebrow: "ВИБРАНІ РОБОТИ",
         portfolioTitle1: "МОЇ",
         portfolioTitle2: "РОБОТИ",
+        portfolioEmpty: "Нові фотосесії незабаром з’являться тут.",
         wedding: "Весілля",
         weddingWork: "Цей день",
         love: "Історія кохання",
@@ -66,8 +66,10 @@ const TRANSLATIONS = {
         validationPhone: "Будь ласка, введіть телефон.",
         validationEmail: "Неправильний формат email.",
         sending: "Відправлення...",
-        sent: "Запит надіслано. Якщо ви не отримали підтвердження, перевірте налаштування backend.",
-        sendError: "Не вдалося відправити заявку. Потрібно налаштувати backend.",
+        sent: "Дякуємо! Заявку збережено. Я зв’яжуся з вами.",
+        sentUnconfirmed: "Заявку не вдалося підтвердити. Не надсилайте її повторно — напишіть мені в Instagram нижче.",
+        sendError: "Не вдалося надіслати заявку. Перевірте з’єднання або напишіть мені в Instagram.",
+        privacyNote: "Дані форми зберігаються у вашій Google-таблиці, щоб відповісти на запит.",
 
         footer: "© 2026 Nelli Photography",
 
@@ -105,6 +107,7 @@ const TRANSLATIONS = {
         portfolioEyebrow: "ИЗБРАННЫЕ РАБОТЫ",
         portfolioTitle1: "МОИ",
         portfolioTitle2: "РАБОТЫ",
+        portfolioEmpty: "Новые фотосессии скоро появятся здесь.",
         wedding: "Свадьба",
         weddingWork: "Этот день",
         love: "История любви",
@@ -139,8 +142,10 @@ const TRANSLATIONS = {
         validationPhone: "Пожалуйста, введите телефон.",
         validationEmail: "Неверный формат email.",
         sending: "Отправка...",
-        sent: "Запрос отправлен. Если вы не получили подтверждение, проверьте настройки backend.",
-        sendError: "Не удалось отправить заявку. Необходимо настроить backend.",
+        sent: "Спасибо! Заявка сохранена. Я свяжусь с вами.",
+        sentUnconfirmed: "Не удалось подтвердить заявку. Не отправляйте её повторно — напишите мне в Instagram ниже.",
+        sendError: "Не удалось отправить заявку. Проверьте соединение или напишите мне в Instagram.",
+        privacyNote: "Данные формы сохраняются в вашей таблице Google, чтобы ответить на запрос.",
 
         footer: "© 2026 Nelli Photography",
 
@@ -176,6 +181,7 @@ const TRANSLATIONS = {
         portfolioEyebrow: "SELECTED STORIES",
         portfolioTitle1: "MY",
         portfolioTitle2: "WORK",
+        portfolioEmpty: "New photo stories will appear here soon.",
         wedding: "Wedding",
         weddingWork: "This day",
         love: "Love story",
@@ -210,8 +216,10 @@ const TRANSLATIONS = {
         validationPhone: "Please enter your phone number.",
         validationEmail: "Please enter a valid email address.",
         sending: "Sending...",
-        sent: "Request sent. If you did not receive confirmation, please check the backend settings.",
-        sendError: "The request could not be sent. The backend needs configuration.",
+        sent: "Thank you! Your request was saved. I will contact you soon.",
+        sentUnconfirmed: "We couldn't confirm the request. Please don't send it again; message me on Instagram below.",
+        sendError: "The request could not be sent. Check your connection or message me on Instagram.",
+        privacyNote: "Form details are saved to your Google Sheet so I can reply to your request.",
 
         footer: "© 2026 Nelli Photography",
 
@@ -247,6 +255,7 @@ const TRANSLATIONS = {
         portfolioEyebrow: "VYBRANÉ PRÁCE",
         portfolioTitle1: "MOJE",
         portfolioTitle2: "PRÁCE",
+        portfolioEmpty: "Nové fotografie se zde brzy objeví.",
         wedding: "Svatební",
         weddingWork: "Ten den",
         love: "Příběh lásky",
@@ -281,8 +290,10 @@ const TRANSLATIONS = {
         validationPhone: "Zadejte prosím telefon.",
         validationEmail: "Zadejte prosím platný e-mail.",
         sending: "Odesílání...",
-        sent: "Žádost byla odeslána. Pokud jste neobdrželi potvrzení, zkontrolujte nastavení backendu.",
-        sendError: "Žádost se nepodařilo odeslat. Backend vyžaduje konfiguraci.",
+        sent: "Děkuji! Žádost byla uložena. Brzy se vám ozvu.",
+        sentUnconfirmed: "Žádost se nepodařilo potvrdit. Neposílejte ji znovu — napište mi níže na Instagram.",
+        sendError: "Žádost se nepodařilo odeslat. Zkontrolujte připojení nebo mi napište na Instagram.",
+        privacyNote: "Údaje z formuláře se ukládají do vaší tabulky Google, abych mohla odpovědět.",
 
         footer: "© 2026 Nelli Photography",
 
@@ -391,7 +402,13 @@ function normalizePublicData(data) {
 
     const sessions = Array.isArray(data && data.sessions) ? data.sessions : [];
     const photos = Array.isArray(data && data.photos) ? data.photos : [];
-    if (!sessions.length) return null;
+    if (!sessions.length && !photos.length) {
+        const empty = window.NelliContentModel
+            ? window.NelliContentModel.emptyContent()
+            : { portfolio: [] };
+        empty.portfolio = [];
+        return empty;
+    }
 
     const portfolio = photos.map(function (photo, index) {
         const session = sessions.find(function (item) {
@@ -404,11 +421,19 @@ function normalizePublicData(data) {
             cz: session['Назва CZ'] || session['Назва UA'] || photo['Назва'] || 'Portfolio'
         };
         const fileId = photo['File ID'] || photo.imageUrl || photo.url || '';
+        const categoryKey = String(session['Категорія'] || 'other');
+        const categoryLabels = {
+            wedding: { uk: TRANSLATIONS.uk.wedding, ru: TRANSLATIONS.ru.wedding, en: TRANSLATIONS.en.wedding, cz: TRANSLATIONS.cz.wedding },
+            love: { uk: TRANSLATIONS.uk.love, ru: TRANSLATIONS.ru.love, en: TRANSLATIONS.en.love, cz: TRANSLATIONS.cz.love },
+            portrait: { uk: TRANSLATIONS.uk.portrait, ru: TRANSLATIONS.ru.portrait, en: TRANSLATIONS.en.portrait, cz: TRANSLATIONS.cz.portrait },
+            couple: { uk: TRANSLATIONS.uk.couple, ru: TRANSLATIONS.ru.couple, en: TRANSLATIONS.en.couple, cz: TRANSLATIONS.cz.couple },
+            other: { uk: 'Інше', ru: 'Другое', en: 'Other', cz: 'Ostatní' }
+        };
         return {
             id: photo.ID || 'photo-' + index,
             imageUrl: publicImageUrl(fileId),
             title: title,
-            category: session['Категорія'] || 'portrait',
+            category: categoryLabels[categoryKey] || categoryLabels.other,
             alt: title,
             order: Number(photo['Порядок'] || index + 1),
             published: String(session['Активна']).toLowerCase() !== 'false',
@@ -446,14 +471,17 @@ function renderServices() {
 
 function renderPortfolio() {
     const grid = el('.portfolio-grid');
-    if (!grid || !Array.isArray(SITE_CONTENT.portfolio) || !SITE_CONTENT.portfolio.length) return;
+    if (!grid || !Array.isArray(SITE_CONTENT.portfolio)) return;
     const lang = localStorage.getItem('nelli-lang') || 'uk';
     const items = SITE_CONTENT.portfolio.filter(function (item) {
         return item.published !== false && publicImageUrl(item.imageUrl || item.url || item.fileId);
     }).sort(function (a, b) {
         return Number(a.order || 0) - Number(b.order || 0);
     });
-    if (!items.length) return;
+    if (!items.length) {
+        grid.innerHTML = '<p class="portfolio-empty">' + escapePublic((TRANSLATIONS[lang] || TRANSLATIONS.uk).portfolioEmpty || TRANSLATIONS.uk.portfolioEmpty) + '</p>';
+        return;
+    }
 
     grid.innerHTML = items.map(function (item, index) {
         const title = localizedValue(item.title, lang) || 'Portfolio';
@@ -525,22 +553,39 @@ function applySiteContent(content) {
     applyTranslations(localStorage.getItem('nelli-lang') || 'uk');
 }
 
-function loadPublicContent() {
-    return fetch(PUBLIC_CONTENT_URL + '?action=publicData&_=' + Date.now(), {
-        method: 'GET',
-        mode: 'cors',
-        cache: 'no-store',
-        headers: { Accept: 'application/json' }
-    }).then(function (response) {
-        if (!response.ok) throw new Error('Public content API unavailable');
-        return response.text();
-    }).then(function (body) {
-        let data;
-        try {
-            data = JSON.parse(body);
-        } catch (error) {
-            throw new Error('Public content API contract is not available');
+function apiJsonp(action, params) {
+    if (!PUBLIC_CONTENT_URL || PUBLIC_CONTENT_URL.indexOf('PASTE_YOUR_') >= 0) {
+        return Promise.reject(new Error('Google Apps Script URL is not configured'));
+    }
+    return new Promise(function (resolve, reject) {
+        const callback = '__nelliPublic_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        const script = document.createElement('script');
+        const query = new URLSearchParams(Object.assign({ action: action, callback: callback, _: String(Date.now()) }, params || {}));
+        let finished = false;
+        const timeout = window.setTimeout(function () { finish(new Error('Google Apps Script timeout')); }, 12000);
+        function cleanup() {
+            window.clearTimeout(timeout);
+            try { delete window[callback]; } catch (error) { window[callback] = undefined; }
+            if (script.parentNode) script.parentNode.removeChild(script);
         }
+        function finish(error, data) {
+            if (finished) return;
+            finished = true;
+            cleanup();
+            if (error) reject(error); else resolve(data);
+        }
+        window[callback] = function (data) {
+            if (!data || data.success !== true) return finish(new Error((data && data.error) || 'Google Apps Script returned an error'));
+            finish(null, data);
+        };
+        script.onerror = function () { finish(new Error('Google Apps Script could not be loaded')); };
+        script.src = PUBLIC_CONTENT_URL + '?' + query.toString();
+        document.body.appendChild(script);
+    });
+}
+
+function loadPublicContent() {
+    return apiJsonp('publicData').then(function (data) {
         const content = normalizePublicData(data);
         if (!content) throw new Error((data && data.error) || 'No public content returned');
         applySiteContent(content);
@@ -684,17 +729,26 @@ function showFormMessage(text, isError = false) {
 }
 
 async function submitForm(data) {
-    // To preserve compatibility with existing Google Apps Script endpoint,
-    // send request using 'no-cors' mode which results in an opaque response.
-    // We cannot reliably parse success from the response in this mode.
+    if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.indexOf('PASTE_YOUR_') >= 0) {
+        throw new Error('API is not configured');
+    }
     return fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         mode: 'no-cors',
         headers: {
             'Content-Type': 'text/plain;charset=utf-8'
         },
-        body: JSON.stringify(data)
+        body: JSON.stringify(Object.assign({ action: 'createBooking' }, data))
     });
+}
+
+async function confirmBooking(requestId) {
+    for (let attempt = 0; attempt < 10; attempt += 1) {
+        if (attempt) await new Promise(function (resolve) { window.setTimeout(resolve, 700); });
+        const result = await apiJsonp('bookingStatus', { id: requestId });
+        if (result.received === true) return true;
+    }
+    return false;
 }
 
 function validateEmail(email) {
@@ -731,23 +785,28 @@ function initForm() {
             return;
         }
 
-        const payload = { full_name: name, phone, email, message };
+        const requestId = 'request-' + Date.now() + '-' + Math.random().toString(36).slice(2, 10);
+        const payload = { requestId: requestId, full_name: name, phone, email, message };
 
+        let requestDispatched = false;
         try {
             formSending = true;
             submitBtn.disabled = true;
             showFormMessage(currentMap.sending, false);
 
-            // Use existing endpoint format (no-cors) to avoid breaking backend.
             await submitForm(payload);
-
-            // With no-cors mode we cannot confirm backend success. Inform the user honestly.
-            showFormMessage(currentMap.sent, false);
-            form.reset();
+            requestDispatched = true;
+            const confirmed = await confirmBooking(requestId);
+            if (confirmed) {
+                showFormMessage(currentMap.sent, false);
+                form.reset();
+            } else {
+                showFormMessage(currentMap.sentUnconfirmed || currentMap.sendError, true);
+            }
 
         } catch (err) {
             console.error('Form send error:', err);
-            showFormMessage(currentMap.sendError, true);
+            showFormMessage(requestDispatched ? (currentMap.sentUnconfirmed || currentMap.sendError) : currentMap.sendError, true);
         } finally {
             formSending = false;
             submitBtn.disabled = false;

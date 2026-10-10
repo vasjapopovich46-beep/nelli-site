@@ -1,34 +1,27 @@
 # Nelli Photography
 
-## Online URLs
+Static photography site with a small Google Drive based admin. Google Sheets stores sessions, site text, and booking requests. Google Drive stores uploaded photos.
 
-- Public site: https://vasjapopovich46-beep.github.io/nelli-site/
-- Admin: https://vasjapopovich46-beep.github.io/nelli-site/admin/
+## One-time setup
 
-GitHub Pages deploys the repository root on every push to `main` through `.github/workflows/deploy-pages.yml`.
+Follow [`SETUP.md`](SETUP.md) to install the Apps Script backend, connect its URL in `config.js`, and deploy the site to GitHub Pages.
 
-## CMS and backend contract
+The archive did not include the previous Apps Script project or the original spreadsheet IDs. The included script creates a new spreadsheet and photo folder in the same Google Drive account. It does not delete or alter the old data. Existing sessions and photos are not automatically migrated.
 
-The public site reads published content through the existing Google Apps Script URL using a no-store CORS JSON request:
+## Use the admin
 
-- `GET ?action=publicData`
-- response: `{ success: true, siteContent: { ... } }`
+Open `/admin/`, enter the private key created by `setupNelliDrive()`, then use:
 
-The current deployed endpoint returns `NELLI API OK` for `publicData`, so the public site keeps its static fallback until the backend returns this JSON contract with browser CORS enabled.
+- **Фотосесії** to create sessions, upload photos, choose a cover, and set visibility on the public site.
+- **Тексти сайту** to edit translated headings and descriptions, add the site photos and social links, save a draft, or publish.
+- **Заявки** to read contact form submissions saved to the Google Sheets database.
 
-The admin sends authenticated JSON POST requests to the same URL:
+The admin key is checked by Apps Script and held in memory only. It is not embedded in the website or saved in browser storage. Google Apps Script is a temporary backend; it can later be replaced while keeping the same browser API contract.
 
-- `adminData`
-- `saveSiteContent`
-- `publishSiteContent`
-- existing `saveSession`, `deleteSession`, `uploadPhoto`, `deletePhoto`, and `setCover`
+## Photos
 
-`siteContent` contains translations for `uk`, `ru`, `en`, and `cz`, plus `media`, `links`, `sections`, `services`, `social`, `seo`, `portfolio`, `published`, and `version`.
+Upload JPG, PNG, or WebP images up to 5 MB each. Photos belonging to a session marked visible are displayed publicly on the site; uploaded Drive files are shared with “Anyone with the link — Viewer” so the public page can display them. Do not upload private client photos to a visible session.
 
-The existing admin read action remains JSONP-compatible: `GET ?action=adminData&token=...&callback=...`. Writes currently use the existing opaque `no-cors` POST format; the UI reports them as unconfirmed requests until the backend returns a confirmable response.
+## Deployment
 
-## Authentication requirement
-
-GitHub Pages uses the requested temporary client-side password `Paparazzi`. It is checked only in memory and is never stored in localStorage, sessionStorage, or cookies. This is not server-side security and must not be used for sensitive production administration.
-
-The repository contains no Google Apps Script source. The existing endpoint rejects the requested CMS/calendar actions and returns `NELLI API OK` for unsupported actions. No calendar or bookings implementation exists in the repository or verified API responses, so the admin displays an explicit calendar blocker instead of fake events. A future backend can replace this temporary gate and implement the existing Google Sheets contract.
+GitHub Pages publishes the repository root on pushes to `main` using `.github/workflows/deploy-pages.yml`.
