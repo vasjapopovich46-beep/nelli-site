@@ -1,7 +1,3 @@
-Add the original image files here if you want local fallback photos:
+The site intentionally ships without sample portfolio photographs. Add real sessions and photos through `/admin/`; uploaded photographs stay in the configured Google Drive folder.
 
-- `logo.png`
-- `about.jpg`
-- `portfolio-1.jpg` through `portfolio-5.jpg`
-
-The supplied ZIP listed these filenames but contained no image files. The site has styled fallbacks for missing images and can display portfolio photos uploaded through the admin to Google Drive.
+`logo.svg` is the only bundled image asset. The About section uses a designed text fallback until you add a portrait in the admin's site settings.

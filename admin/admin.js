@@ -345,24 +345,39 @@
             els.photoInput.value = '';
             return;
         }
-        const valid = files.filter(function (file) { return ['image/jpeg','image/png','image/webp'].includes(file.type); });
-        if (valid.length !== files.length) setMessage(els.editorStatus, 'Пропущено файли не у форматі JPG, PNG або WebP.', 'error');
+        const allowedTypes = ['image/jpeg','image/png','image/webp'];
+        const valid = files.filter(function (file) { return allowedTypes.includes(file.type); });
+        let uploaded = 0;
+        const skipped = files.length - valid.length;
+        const failures = [];
         for (let i = 0; i < valid.length; i += 1) {
             const file = valid[i];
-            if (file.size > 5 * 1024 * 1024) { setMessage(els.editorStatus, file.name + ' завеликий — ліміт 5 МБ.', 'error'); continue; }
+            if (file.size > 5 * 1024 * 1024) {
+                failures.push(file.name + ' завеликий (максимум 5 МБ)');
+                continue;
+            }
             const before = photosFor(state.currentId).length;
             try {
                 setMessage(els.editorStatus, 'Завантажую фото ' + (i + 1) + ' із ' + valid.length + '…');
                 const base64Data = await readFileBase64(file);
                 await postAdmin({ action: 'uploadPhoto', sessionId: state.currentId, fileName: file.name, base64Data: base64Data, mimeType: file.type });
                 await confirmRefresh(function () { return photosFor(state.currentId).length > before; });
+                uploaded += 1;
             } catch (error) {
-                setMessage(els.editorStatus, error.message || ('Не вдалося завантажити ' + file.name + '.'), 'error');
+                failures.push(file.name + ': ' + (error.message || 'не вдалося завантажити'));
                 break;
             }
         }
         els.photoInput.value = '';
-        if (valid.length) setMessage(els.editorStatus, 'Фото збережено в Google Drive.', 'success');
+        if (uploaded && !failures.length && !skipped) {
+            setMessage(els.editorStatus, uploaded === 1 ? 'Фото збережено в Google Drive.' : 'Фото збережено в Google Drive: ' + uploaded + '.', 'success');
+        } else if (uploaded || failures.length || skipped) {
+            const summary = [];
+            if (uploaded) summary.push('збережено: ' + uploaded);
+            if (skipped) summary.push('пропущено невідомий формат: ' + skipped);
+            if (failures.length) summary.push(failures.join('; '));
+            setMessage(els.editorStatus, summary.join('. '), 'error');
+        }
         renderPhotos();
     }
 
